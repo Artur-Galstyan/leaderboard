@@ -66,20 +66,20 @@ Please see the original [paper](http://ceur-ws.org/Vol-2241/paper-06.pdf) for de
 |    Stage I No Noise [2]    | 2022 |   80.40   | 42.10  | 55.30 | EN | [Purkayastha et al.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9892263) |
 |        LingTeQA [1]        | 2020 |   52.60   | 64.20  | 53.50 |   EN   |                                                     [P. Nhuan et al](https://ieeexplore.ieee.org/abstract/document/9282949)                                                      |
 |           qaSQP            | 2019 |   45.80   | 47.10  | 46.30 |   EN   |                                                              [Zheng et. al.](https://arxiv.org/pdf/1910.09760.pdf)                                                               |
-|          chatGPT           | 2023 |     -     |   -    | 45.71  |   EN   |                                                     [Tan et al.](https://arxiv.org/pdf/2303.07992.pdf)                                                      |
-|          GPT-3.5v3         | 2023 |     -     |   -    | 46.19  |   EN   |                                                     [Tan et al.](https://arxiv.org/pdf/2303.07992.pdf)                                                      |
+|          chatGPT           | 2023 |     -     |   -    | 45.71 |   EN   |                                                     [Tan et al.](https://arxiv.org/pdf/2303.07992.pdf)                                                      |
+|          GPT-3.5v3         | 2023 |     -     |   -    | 46.19 |   EN   |                                                     [Tan et al.](https://arxiv.org/pdf/2303.07992.pdf)                                                      |
 |            NSpM            | 2022 |     -     |   -    | 45.34 |   EN   |                                                     [Al Hasan Rony et al](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9815253)                                                      |
 |          GPT-3.5v2         | 2023 |     -     |   -    | 44.95  |   EN   |                                                     [Tan et al.](https://arxiv.org/pdf/2303.07992.pdf)                                                      |
 |           KGQAn            | 2023 |   49.81   | 39.39  | 43.99 |   EN   | [Omar et al.](https://arxiv.org/pdf/2303.00595.pdf) |
 |   Ensemble BR framework    | 2023 |   42.40   | 47.60  | 43.00 |   EN   | [Chen et al.](https://assets.researchsquare.com/files/rs-2676239/v1_covered.pdf?c=1680800823) |
 |           KGQAn            | 2021 |   50.61   | 34.67  | 41.15 |   EN   |                                                             [Omar et al.](http://ceur-ws.org/Vol-2980/paper312.pdf)                                                              |
 |       Light-QAWizard       | 2022 |   39.80   | 42.60  | 40.60 |   EN   |                                                    [Chen et al.](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9893129)                                                     |
-|       Light-QAWizard       | 2023 |   39.80   | 42.60  | 40.60 |   EN   | [Chen et al.](https://assets.researchsquare.com/files/rs-2676239/v1_covered.pdf?c=1680800823) |
 |   Stage-I Part Noise [7]   | 2022 |   63.90   | 28.70  | 39.60 |   EN   |                                                            [Purkayastha et al.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9892263)                                                            |
-|          GPT-3             | 2023 |     -     |   -    | 38.54  |   EN   |                                                     [Tan et al.](https://arxiv.org/pdf/2303.07992.pdf)                                                      |
+|          GPT-3             | 2023 |     -     |   -    | 38.54 |   EN   |                                                     [Tan et al.](https://arxiv.org/pdf/2303.07992.pdf)                                                      |
 |   Stage-II w/o type [5]    | 2022 |   59.40   | 26.10  | 36.20 |   EN   |                                                            [Purkayastha et al.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9892263)                                                            |
 |    Stage-II w/ type [6]    | 2022 |   59.40   | 26.10  | 36.20 |   EN   |                                                            [Purkayastha et al.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9892263)                                                            |
 |   Stage-I Full Noise [8]   | 2022 |   82.60   |   23   | 36.00 |   EN   |                                                            [Purkayastha et al.](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9892263)                                                            |
+|         QAWizard          | 2022 |   31.10   | 46.90  | 33.00 |    -     |   EN    |                                                    [Chen et al.](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9893129)                                                     |
 |            QAmp            | 2019 |    25     |   50   |  33   |   EN   |[Vakulenko et. al.](https://dl.acm.org/doi/pdf/10.1145/3357384.3358026?casa_token=X_2SYFDIrd8AAAAA:Z9FcBHNuARtktnurgKswRUvVZx7E1eSdRsXWqVIZej6fJDVTcUGVQ-aqazqiStuQKqAd362eKw3CzQ)|
 |          QAwizard          | 2023 |   31.10   | 46.90  | 33    |   EN   | [Chen et al.](https://assets.researchsquare.com/files/rs-2676239/v1_covered.pdf?c=1680800823) |
 |        WDAqua-core0        | 2021 |     -     |   -    |  32   |   EN   |                                                              [Orogat et al.](https://arxiv.org/pdf/2105.00811.pdf)                                                               |
@@ -126,12 +126,12 @@ Please see the original [paper](http://ceur-ws.org/Vol-2241/paper-05.pdf) for de
 
 ### Leaderboard
 
+
 |      Model / System       | Year |Precision |Recall |  F1   | Accuracy |Language |                                  Reported by                                   |
 |:-------------------------:|:----:|:--------:|:-----:|:-----:|:--------:|:-------:|:------------------------------------------------------------------------------:|
 |   Ensemble BR framework    | 2023 |   52.20   | 56.10  | 51.70 |    -     |   EN   | [Chen et al.](https://assets.researchsquare.com/files/rs-2676239/v1_covered.pdf?c=1680800823) |
 |           qaSQP           | 2019 |  45.90   | 46.30 | 46.10 |    -     |   EN    |             [Zheng et. al.](https://arxiv.org/pdf/1910.09760.pdf)              |
 |      Light-QAWizard       | 2022 |  46.20   | 50    | 45.70 |    -     |   EN    |                                                    [Chen et al.](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9893129)                                                     |
-|      Light-QAWizard       | 2023 |   46.20   | 50     | 45.70 |    -     |   EN   | [Chen et al.](https://assets.researchsquare.com/files/rs-2676239/v1_covered.pdf?c=1680800823) |
 |          gAnswer2          | 2023 |   38.62   | 39.02  | 38.80 |    -     |   EN   | [Chen et al.](https://assets.researchsquare.com/files/rs-2676239/v1_covered.pdf?c=1680800823) |
 |         gAnswer2          | 2019 |  38.60   |  39   | 38.80 |    -     |   EN    |             [Zheng et. al.](https://arxiv.org/pdf/1910.09760.pdf)              |
 |          gAnswer          | 2021 |  38.62   | 39.02 | 38.80 |    -     |   EN    |[Steinmetz et al.](https://link.springer.com/article/10.1007/s13740-021-00128-9)|
@@ -157,6 +157,7 @@ Please see the original [paper](https://svn.aksw.org/papers/2017/ESWC_2017_QALD/
 
 ### Leaderboard
 
+
 |        Model / System        | Year |Precision | Recall |  F1   |Accuracy |Language |                                  Reported by                                  |
 |:----------------------------:|:----:|:--------:|:------:|:-----:|:-------:|:-------:|:-----------------------------------------------------------------------------:|
 |             LAMA             | 2019 |    -     |   -    | 90.50 |    -    |   EN    |            [Radoev et. al.](https://arxiv.org/pdf/2004.13843.pdf)             |
@@ -164,7 +165,6 @@ Please see the original [paper](https://svn.aksw.org/papers/2017/ESWC_2017_QALD/
 |         Liang et al.         | 2021 |  81.30   | 52.70  | 63.90 |    -    |   EN    |[Liang et al.](https://assets.researchsquare.com/files/rs-70794/v1_stamped.pdf)|
 |   Ensemble BR framework    | 2023 |   59.80   | 69.60  | 61.20 |    -    |   EN   | [Chen et al.](https://assets.researchsquare.com/files/rs-2676239/v1_covered.pdf?c=1680800823) |
 |        Light-QAWizard        | 2022 |  56.50   | 65.20  | 59.40 |   -     |   EN    |                                                     [Chen et al.](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9893129)                                                  |
-|             Light-QAWizard             | 2023 |   56.50   | 65.20  | 59.40 |    -    |   EN   | [Chen et al.](https://assets.researchsquare.com/files/rs-2676239/v1_covered.pdf?c=1680800823) |
 |          QAwizard          | 2023 |   59      | 59     | 59    |    -    |   EN   | [Chen et al.](https://assets.researchsquare.com/files/rs-2676239/v1_covered.pdf?c=1680800823) |
 |           gAnswer2           | 2020 |  55.70   | 59.20  | 55.60 |    -    |   EN    |            [Athreya et. al](https://arxiv.org/pdf/2004.13843.pdf)             |
 |         WDAqua-core0         | 2021 |  48.80   | 53.50  | 51.10 |    -    |   EN    |[Liang et al.](https://assets.researchsquare.com/files/rs-70794/v1_stamped.pdf)|
