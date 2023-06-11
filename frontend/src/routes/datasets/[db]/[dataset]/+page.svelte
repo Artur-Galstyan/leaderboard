@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import matter from 'gray-matter';
+	// @ts-ignore
 	import * as htmlToJson from 'html-table-to-json';
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
@@ -9,6 +10,29 @@
 
 	let parsedTable: any;
 	let prefaceData: any;
+
+	function setTableFilter(event: Event) {
+		let filterString = (event.target as HTMLInputElement).value;
+		if (filterString && tabulator) {
+			tabulator.setFilter([
+				[],
+				[
+					{ field: 'Model / System', type: 'like', value: filterString },
+					{ field: 'Year', type: 'like', value: filterString },
+					{ field: 'Accuracy', type: 'like', value: filterString },
+					{ field: 'Precision', type: 'like', value: filterString },
+					{ field: 'Recall', type: 'like', value: filterString },
+					{ field: 'F1', type: 'like', value: filterString },
+					{ field: 'Language', type: 'like', value: filterString },
+					{ field: 'Reported By', type: 'like', value: filterString }
+				]
+			]);
+		} else if (tabulator) {
+			tabulator.clearFilter(true);
+		} else {
+			console.error('Tabulator not initialized');
+		}
+	}
 
 	async function load(params: any) {
 		try {
@@ -38,22 +62,19 @@
 	}
 
 	let table: string | HTMLElement;
+	let tabulator: Tabulator;
+	let filter: HTMLInputElement;
 	onMount(async () => {
-		console.log('page', $page);
 		const loadData = await load($page.params);
 		parsedTable = loadData.parsedTable;
 		prefaceData = loadData.prefaceData;
-
-		console.log('parsedTable', parsedTable);
-		console.log('prefaceData', prefaceData);
-
-		console.log('table', parsedTable);
-
-		new Tabulator(table, {
+		console.log(parsedTable);
+		tabulator = new Tabulator(table, {
 			data: parsedTable,
 			layout: 'fitColumns', //fit columns to width of table (optional)
 			height: '500', //height of table (optional)
 			reactiveData: true, //enable data reactivity
+
 			columns: [
 				{
 					title: 'Model / System',
@@ -65,7 +86,12 @@
 				},
 				{
 					title: 'Accuracy',
-					field: 'Accuracy'
+					field: 'Accuracy',
+					sorter: function (a, b, aRow, bRow, column, dir, sorterParams) {
+						if (a == '-') a = 0;
+						if (b == '-') b = 0;
+						return a - b;
+					}
 				},
 				{
 					title: 'Precision',
@@ -99,6 +125,17 @@
 		<h5>Dataset URL: <a href={prefaceData.datasetUrl}>Link</a></h5>
 	</main>
 {/if}
+<div class="flex justify-center my-4">
+	<input
+		type="text"
+		class="input input-primary input-sm w-96"
+		placeholder="Filter 🔎"
+		name="filter"
+		id="filter"
+		bind:this={filter}
+		on:input={setTableFilter}
+	/>
+</div>
 <div bind:this={table} />
 <svelte:head>
 	<link
