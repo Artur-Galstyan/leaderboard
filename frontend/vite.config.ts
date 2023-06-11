@@ -1,9 +1,11 @@
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import inject from '@rollup/plugin-inject';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { Buffer } from 'buffer';
+import { env } from 'process';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [sveltekit()],
 	resolve: {
 		alias: {
 			path: 'path-browserify'
@@ -21,6 +23,12 @@ export default defineConfig({
 					buffer: true
 				})
 			]
+		}
+	},
+	plugins: [sveltekit()],
+	build: {
+		rollupOptions: {
+			plugins: [inject({ Buffer: ['buffer', 'Buffer'] })]
 		}
 	}
 });
