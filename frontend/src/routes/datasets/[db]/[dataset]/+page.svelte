@@ -33,7 +33,7 @@
 				prefaceData: prefaceData
 			};
 		} catch (e) {
-			throw new Error(`Failed to load dataset ${params.dataset} from ${params.db}`);
+			throw new Error(`Failed to load dataset ${params.dataset} from ${params.db}, error ${e}`);
 		}
 	}
 
