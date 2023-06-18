@@ -2,8 +2,7 @@
 	import { page } from '$app/stores';
 	import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import matter from 'gray-matter';
-	// @ts-ignore
-	import * as htmlToJson from 'html-table-to-json';
+	import * as htmlToJson from "$lib/utils/htmlToJson"
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
 	import { TabulatorFull as Tabulator } from 'tabulator-tables';
@@ -44,14 +43,16 @@
 			const githubMarkdownText = await githubUrlReq.text();
 
 			const parsed = matter(githubMarkdownText);
+            
 			const prefaceData = {
 				name: parsed.data.name,
 				description: parsed.data.description,
 				datasetUrl: parsed.data.datasetUrl
 			};
+            
 			const htmlContent = marked.parse(parsed.content, { mangle: false, headerIds: false });
+           
 			const parsedTable = htmlToJson.parse(htmlContent).results[0];
-
 			return {
 				parsedTable: structuredClone(parsedTable),
 				prefaceData: prefaceData
@@ -67,15 +68,8 @@
 	onMount(async () => {
 		const loadData = await load($page.params);
 		parsedTable = loadData.parsedTable;
-		prefaceData = loadData.prefaceData;
-		console.log(parsedTable);
-		tabulator = new Tabulator(table, {
-			data: parsedTable,
-			layout: 'fitColumns', //fit columns to width of table (optional)
-			height: '500', //height of table (optional)
-			reactiveData: true, //enable data reactivity
-
-			columns: [
+        console.log(parsedTable); 
+        let columns = [
 				{
 					title: 'Model / System',
 					field: 'Model / System'
@@ -84,16 +78,7 @@
 					title: 'Year',
 					field: 'Year'
 				},
-				{
-					title: 'Accuracy',
-					field: 'Accuracy',
-					sorter: function (a, b, aRow, bRow, column, dir, sorterParams) {
-						if (a == '-') a = 0;
-						if (b == '-') b = 0;
-						return a - b;
-					}
-				},
-				{
+								{
 					title: 'Precision',
 					field: 'Precision'
 				},
@@ -110,11 +95,43 @@
 					field: 'Language'
 				},
 				{
-					title: 'Reported By',
-					field: 'Reported By'
+					title: 'Reported by',
+					field: 'Reported by',
+                    formatter: 'html',
+                    class: 'link'
+                    
 				}
-			]
-		});
+        ]
+
+        let objectKeys = Object.keys(parsedTable[0]);
+
+        if (objectKeys.includes('Gold Entity')) {
+            columns.push({
+                title: 'Gold Entity',
+                field: 'Gold Entity'
+            })   
+        }
+        if (objectKeys.includes("Accuracy")) {
+            columns.push({
+                title: 'Accuracy',
+                field: 'Accuracy',
+                sorter: function (a:any, b: any, aRow:any, bRow:any, column:any, dir:any, sorterParams:any) {
+                    if (a == '-') a = 0;
+                    if (b == '-') b = 0;
+                    return a - b;
+                }
+            })
+
+        }
+
+		prefaceData = loadData.prefaceData;
+		tabulator = new Tabulator(table, {
+			data: parsedTable,
+			layout: 'fitColumns', //fit columns to width of table (optional)
+			height: '500', //height of table (optional)
+			reactiveData: true, //enable data reactivity
+			columns: columns
+        });
 	});
 </script>
 
@@ -143,3 +160,4 @@
 		rel="stylesheet"
 	/>
 </svelte:head>
+
