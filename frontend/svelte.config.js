@@ -1,6 +1,24 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/kit/vite';
 import preprocess from 'svelte-preprocess';
+import fs from 'fs';
+import readline from 'readline';
+
+async function getEntriesFromTxtFile(path) {
+    let entries = [];
+
+    const fileStream = fs.createReadStream(path);
+    const rl = readline.createInterface({
+        input: fileStream,
+        crlfDelay: Infinity
+    });
+    for await (const line of rl) {
+        entries.push(line);
+    }
+
+    return entries;
+}
+
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -19,7 +37,7 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: adapter({}),
 		prerender: {
-			entries: ['/', '/datasets/dbpedia/lcquadv1', '/datasets/dbpedia/']
+			entries: await getEntriesFromTxtFile('./entries.txt')
 		}
 	}
 };
