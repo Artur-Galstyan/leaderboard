@@ -1,3 +1,4 @@
 /
 /datasets/dbpedia/lcquadv1
+/datasets/dbpedia/lcquadv2
 /datasets/dbpedia/
