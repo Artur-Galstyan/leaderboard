@@ -43,7 +43,7 @@
 			const githubMarkdownText = await githubUrlReq.text();
 
 			const parsed = matter(githubMarkdownText);
-
+			
 			const prefaceData = {
 				name: parsed.data.name,
 				description: parsed.data.description,
@@ -145,7 +145,7 @@
 			height: '500', //height of table (optional)
 			reactiveData: true, //enable data reactivity
 			columns: columns as any,
-            movableColumns: true,
+			movableColumns: true
 		});
 	});
 </script>
