@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
+	import * as htmlToJson from '$lib/utils/htmlToJson';
 	import matter from 'gray-matter';
-	import * as htmlToJson from "$lib/utils/htmlToJson"
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
-	import { TabulatorFull as Tabulator } from 'tabulator-tables';
+	import { type Formatter, TabulatorFull as Tabulator } from 'tabulator-tables';
 
 	let parsedTable: any;
 	let prefaceData: any;
@@ -43,15 +43,15 @@
 			const githubMarkdownText = await githubUrlReq.text();
 
 			const parsed = matter(githubMarkdownText);
-            
+
 			const prefaceData = {
 				name: parsed.data.name,
 				description: parsed.data.description,
 				datasetUrl: parsed.data.datasetUrl
 			};
-            
+
 			const htmlContent = marked.parse(parsed.content, { mangle: false, headerIds: false });
-           
+
 			const parsedTable = htmlToJson.parse(htmlContent).results[0];
 			return {
 				parsedTable: structuredClone(parsedTable),
@@ -68,61 +68,75 @@
 	onMount(async () => {
 		const loadData = await load($page.params);
 		parsedTable = loadData.parsedTable;
-        console.log(parsedTable); 
-        let columns = [
-				{
-					title: 'Model / System',
-					field: 'Model / System'
-				},
-				{
-					title: 'Year',
-					field: 'Year'
-				},
-								{
-					title: 'Precision',
-					field: 'Precision'
-				},
-				{
-					title: 'Recall',
-					field: 'Recall'
-				},
-				{
-					title: 'F1',
-					field: 'F1'
-				},
-				{
-					title: 'Language',
-					field: 'Language'
-				},
-				{
-					title: 'Reported by',
-					field: 'Reported by',
-                    formatter: 'html',
-                    class: 'link'
-                    
+		console.log(parsedTable);
+		let columns = [
+			{
+				title: 'Model / System',
+				field: 'Model / System',
+				resizable: true
+			},
+			{
+				title: 'Year',
+				field: 'Year',
+				resizable: true
+			},
+			{
+				title: 'Precision',
+				field: 'Precision',
+				resizable: true
+			},
+			{
+				title: 'Recall',
+				field: 'Recall',
+				resizable: true
+			},
+			{
+				title: 'F1',
+				field: 'F1',
+				resizable: true
+			},
+			{
+				title: 'Language',
+				field: 'Language',
+				resizable: true
+			},
+			{
+				title: 'Reported by',
+				field: 'Reported by',
+				formatter: 'html',
+				class: 'link',
+				resizable: true
+			}
+		];
+
+		let objectKeys = Object.keys(parsedTable[0]);
+
+		if (objectKeys.includes('Gold Entity')) {
+			columns.push({
+				title: 'Gold Entity',
+				field: 'Gold Entity',
+				resizable: true
+			});
+		}
+		if (objectKeys.includes('Accuracy')) {
+			columns.push({
+				title: 'Accuracy',
+				field: 'Accuracy',
+				sorter: function (
+					a: any,
+					b: any,
+					aRow: any,
+					bRow: any,
+					column: any,
+					dir: any,
+					sorterParams: any
+				) {
+					if (a == '-') a = 0;
+					if (b == '-') b = 0;
+					return a - b;
 				}
-        ]
-
-        let objectKeys = Object.keys(parsedTable[0]);
-
-        if (objectKeys.includes('Gold Entity')) {
-            columns.push({
-                title: 'Gold Entity',
-                field: 'Gold Entity'
-            })   
-        }
-        if (objectKeys.includes("Accuracy")) {
-            columns.push({
-                title: 'Accuracy',
-                field: 'Accuracy',
-                sorter: function (a:any, b: any, aRow:any, bRow:any, column:any, dir:any, sorterParams:any) {
-                    if (a == '-') a = 0;
-                    if (b == '-') b = 0;
-                    return a - b;
-                }
-            })
-
-        }
+			});
+		}
 
 		prefaceData = loadData.prefaceData;
 		tabulator = new Tabulator(table, {
@@ -130,8 +144,9 @@
 			layout: 'fitColumns', //fit columns to width of table (optional)
 			height: '500', //height of table (optional)
 			reactiveData: true, //enable data reactivity
-			columns: columns
-        });
+			columns: columns as any,
+            movableColumns: true,
+		});
 	});
 </script>
 
@@ -153,11 +168,12 @@
 		on:input={setTableFilter}
 	/>
 </div>
-<div bind:this={table} />
+<div class="w-[80%] mx-auto overflow-x-scroll">
+	<div bind:this={table} />
+</div>
 <svelte:head>
 	<link
 		href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css"
 		rel="stylesheet"
 	/>
 </svelte:head>
-
