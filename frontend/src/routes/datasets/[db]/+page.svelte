@@ -22,7 +22,7 @@
 
 			const files = rawFiles.map((file: { name: string }) => {
 				file.name = file.name.replace('.md', '');
-				return file.name == 'README' || file.name[0] == '?' ? undefined : file.name;
+				return file.name == 'README' || file.name[0] == '^' ? undefined : file.name;
 			});
 
 			return {

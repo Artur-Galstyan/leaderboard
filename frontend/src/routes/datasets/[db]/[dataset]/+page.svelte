@@ -53,16 +53,19 @@
 
 			const githubUrlInfo = getRawGitHubContent(
 				`Artur-Galstyan/leaderboard`,
-				`${params.db}/?${params.dataset}.md`
+				`${params.db}/^${params.dataset}.md`
 			);
 			const githubUrlInfoReq = await fetch(githubUrlInfo);
 			const githubMarkdownTextInfo = await githubUrlInfoReq.text();
 			const parsedInfo = matter(githubMarkdownTextInfo);
+		
+			const htmlContentInfo = marked.parse(parsedInfo.content, { mangle: false, headerIds: false });
+			
 
 			return {
 				parsedTable: structuredClone(parsedTable),
 				prefaceData: prefaceData,
-				parsedInfo: parsedInfo
+				parsedInfo: htmlContentInfo
 			};
 		} catch (e) {
 			throw new Error(`Failed to load dataset ${params.dataset} from ${params.db}, error ${e}`);
@@ -110,7 +113,6 @@
 				title: 'Reported by',
 				field: 'Reported by',
 				formatter: 'html',
-				class: 'link',
 				resizable: true
 			}
 		];
@@ -167,7 +169,7 @@
 
 <div class="prose text-justify mx-auto">
 	{#if parsedInfo}
-		{@html parsedInfo.content}
+		{@html parsedInfo}
 	{/if}
 </div>
 <div class="flex justify-center my-4">

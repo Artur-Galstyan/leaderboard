@@ -180,10 +180,5 @@ This dataset can be downloaded via the [link](https://figshare.com/projects/LCQu
 - [11] trained on LC-QuAD 1.0, tested on a data combining qald4 -9 and filter out some out-of-scope questionss.
 - [12] trained on LC-QuAD 1.0, tested on a data combining qald4 -9 and filter out some out-of-scope questionss.
 
-## References
-
-<a name="myfootnote1">[1]</a> Trivedi, Priyansh, Gaurav Maheshwari, Mohnish Dubey, and Jens Lehmann. [Lc-quad: A corpus for complex question answering over knowledge graphs.](http://lc-quad.sda.tech/static/ISWC2017_paper_152.pdf) In International Semantic Web Conference, pp. 210-218. Springer, Cham, 2017.
-
-<a name="myfootnote2">[2]</a> Dubey, Mohnish, Debayan Banerjee, Abdelrahman Abdelkawi, and Jens Lehmann. [Lc-quad 2.0: A large dataset for complex question answering over wikidata and dbpedia.](http://jens-lehmann.org/files/2019/iswc_lcquad2.pdf) In International semantic web conference, pp. 69-78. Springer, Cham, 2019.
 
 [Go back to the README](../README.md)
