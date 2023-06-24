@@ -9,6 +9,7 @@
 
 	let parsedTable: any;
 	let prefaceData: any;
+	let parsedInfo: any;
 
 	function setTableFilter(event: Event) {
 		let filterString = (event.target as HTMLInputElement).value;
@@ -41,21 +42,27 @@
 			);
 			const githubUrlReq = await fetch(githubUrl);
 			const githubMarkdownText = await githubUrlReq.text();
-
 			const parsed = matter(githubMarkdownText);
-			
 			const prefaceData = {
 				name: parsed.data.name,
 				description: parsed.data.description,
 				datasetUrl: parsed.data.datasetUrl
 			};
-
 			const htmlContent = marked.parse(parsed.content, { mangle: false, headerIds: false });
-
 			const parsedTable = htmlToJson.parse(htmlContent).results[0];
+
+			const githubUrlInfo = getRawGitHubContent(
+				`Artur-Galstyan/leaderboard`,
+				`${params.db}/?${params.dataset}.md`
+			);
+			const githubUrlInfoReq = await fetch(githubUrlInfo);
+			const githubMarkdownTextInfo = await githubUrlInfoReq.text();
+			const parsedInfo = matter(githubMarkdownTextInfo);
+
 			return {
 				parsedTable: structuredClone(parsedTable),
-				prefaceData: prefaceData
+				prefaceData: prefaceData,
+				parsedInfo: parsedInfo
 			};
 		} catch (e) {
 			throw new Error(`Failed to load dataset ${params.dataset} from ${params.db}, error ${e}`);
@@ -68,7 +75,6 @@
 	onMount(async () => {
 		const loadData = await load($page.params);
 		parsedTable = loadData.parsedTable;
-		console.log(parsedTable);
 		let columns = [
 			{
 				title: 'Model / System',
@@ -139,6 +145,7 @@
 		}
 
 		prefaceData = loadData.prefaceData;
+		parsedInfo = loadData.parsedInfo;
 		tabulator = new Tabulator(table, {
 			data: parsedTable,
 			layout: 'fitColumns', //fit columns to width of table (optional)
@@ -157,6 +164,12 @@
 		<h5>Dataset URL: <a href={prefaceData.datasetUrl}>Link</a></h5>
 	</main>
 {/if}
+
+<div class="prose text-justify mx-auto">
+	{#if parsedInfo}
+		{@html parsedInfo.content}
+	{/if}
+</div>
 <div class="flex justify-center my-4">
 	<input
 		type="text"
