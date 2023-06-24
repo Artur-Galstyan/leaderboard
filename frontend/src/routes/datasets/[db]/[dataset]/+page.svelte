@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import DatasetNavbar from '$lib/components/DatasetNavbar.svelte';
 	import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import * as htmlToJson from '$lib/utils/htmlToJson';
 	import matter from 'gray-matter';
@@ -58,9 +59,8 @@
 			const githubUrlInfoReq = await fetch(githubUrlInfo);
 			const githubMarkdownTextInfo = await githubUrlInfoReq.text();
 			const parsedInfo = matter(githubMarkdownTextInfo);
-		
+
 			const htmlContentInfo = marked.parse(parsedInfo.content, { mangle: false, headerIds: false });
-			
 
 			return {
 				parsedTable: structuredClone(parsedTable),
@@ -159,23 +159,28 @@
 	});
 </script>
 
+<DatasetNavbar datasetName={$page.params.db} />
+
 {#if prefaceData && parsedTable}
-	<main class="prose text-justify mx-auto">
+	<main class="prose text-justify mx-auto mt-16">
 		<h1>Dataset: {prefaceData.name}</h1>
-		<h4>Description: {prefaceData.description}</h4>
 		<h5>Dataset URL: <a href={prefaceData.datasetUrl}>Link</a></h5>
 	</main>
 {/if}
 
+<div class="divider w-[50%] mx-auto" />
 <div class="prose text-justify mx-auto">
 	{#if parsedInfo}
 		{@html parsedInfo}
 	{/if}
 </div>
+
+<div class="divider w-[50%] mx-auto" />
 <div class="flex justify-center my-4">
+	<div class="font-bold my-auto mx-20 text-2xl">Leaderboard</div>
 	<input
 		type="text"
-		class="input input-primary input-sm w-96"
+		class="input input-primary input-sm w-60"
 		placeholder="Filter 🔎"
 		name="filter"
 		id="filter"
