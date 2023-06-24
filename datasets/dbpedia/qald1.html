@@ -5,24 +5,31 @@
 		<link rel="icon" href="../../favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		
-		<link href="../../_app/immutable/assets/0.80c54fcc.css" rel="stylesheet">
-		<link rel="modulepreload" href="../../_app/immutable/entry/start.dd30e746.js">
+		<link href="../../_app/immutable/assets/0.e26aadc0.css" rel="stylesheet">
+		<link rel="modulepreload" href="../../_app/immutable/entry/start.2d51eef8.js">
 		<link rel="modulepreload" href="../../_app/immutable/chunks/index.0d0b0ac4.js">
-		<link rel="modulepreload" href="../../_app/immutable/chunks/singletons.b783b7b6.js">
-		<link rel="modulepreload" href="../../_app/immutable/entry/app.3abbffbe.js">
-		<link rel="modulepreload" href="../../_app/immutable/nodes/0.456625ef.js">
-		<link rel="modulepreload" href="../../_app/immutable/nodes/4.4e183080.js">
-		<link rel="modulepreload" href="../../_app/immutable/chunks/stores.610c5603.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/singletons.586268d7.js">
+		<link rel="modulepreload" href="../../_app/immutable/entry/app.61fccca7.js">
+		<link rel="modulepreload" href="../../_app/immutable/nodes/0.d4365fbb.js">
+		<link rel="modulepreload" href="../../_app/immutable/nodes/4.7daa8605.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/stores.f00727e6.js">
 		<link rel="modulepreload" href="../../_app/immutable/chunks/marked.esm.dde137d5.js"><!-- HEAD_svelte-1256386_START --><link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet"><!-- HEAD_svelte-1256386_END -->
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">
 
 
+<nav class="my-4 flex w-[80%] mx-auto"><div class="text-center flex-1">◀️ Back to <a href="/datasets/dbpedia">Overview</a></div>
+<div class="">🏠 <a href="/">Home</a></div></nav>
 
 
+
+<div class="divider w-[50%] mx-auto"></div>
 <div class="prose text-justify mx-auto"></div>
-<div class="flex justify-center my-4"><input type="text" class="input input-primary input-sm w-96" placeholder="Filter 🔎" name="filter" id="filter"></div>
+
+<div class="divider w-[50%] mx-auto"></div>
+<div class="flex justify-center my-4"><div class="font-bold my-auto mx-20 text-2xl">Leaderboard</div>
+	<input type="text" class="input input-primary input-sm w-60" placeholder="Filter 🔎" name="filter" id="filter"></div>
 <div class="w-[80%] mx-auto overflow-x-scroll"><div></div></div>
 
 
@@ -30,7 +37,7 @@
 			
 			<script>
 				{
-					__sveltekit_1vnzzb2 = {
+					__sveltekit_1av5z3o = {
 						base: new URL("../..", location).pathname.slice(0, -1),
 						env: {}
 					};
@@ -40,8 +47,8 @@
 					const data = [null,null];
 
 					Promise.all([
-						import("../../_app/immutable/entry/start.dd30e746.js"),
-						import("../../_app/immutable/entry/app.3abbffbe.js")
+						import("../../_app/immutable/entry/start.2d51eef8.js"),
+						import("../../_app/immutable/entry/app.61fccca7.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element, {
 							node_ids: [0, 4],
