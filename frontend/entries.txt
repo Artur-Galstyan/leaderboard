@@ -1,6 +1,20 @@
 /
-/datasets/dbpedia/lcquadv1
-/datasets/dbpedia/lcquadv2
+/datasets/dbpedia/LC-QuAD v1
+/datasets/dbpedia/LC-QuAD v2
 /datasets/dbpedia/
-/datasets/dbpedia/mlpq
-/datasets/dbpedia/qald1
+/datasets/dbpedia/MLPQ
+/datasets/dbpedia/QALD-1
+/datasets/dbpedia/QALD-2
+/datasets/dbpedia/QALD-3
+/datasets/dbpedia/QALD-4
+/datasets/dbpedia/QALD-5
+/datasets/dbpedia/QALD-6
+/datasets/dbpedia/QALD-7
+/datasets/dbpedia/QALD-8
+/datasets/dbpedia/QALD-9
+/datasets/dbpedia/Monument
+/datasets/dbpedia/Reword-QALD-9
+/datasets/dbpedia/SimpleDBpediaQA
+/datasets/dbpedia/QALD-9-Plus
+
+
