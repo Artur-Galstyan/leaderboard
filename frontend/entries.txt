@@ -16,5 +16,3 @@
 /datasets/dbpedia/Reword-QALD-9
 /datasets/dbpedia/SimpleDBpediaQA
 /datasets/dbpedia/QALD-9-Plus
-
-
