@@ -6,6 +6,7 @@
 	import matter from 'gray-matter';
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { type Formatter, TabulatorFull as Tabulator } from 'tabulator-tables';
 
 	let parsedTable: any;
@@ -75,6 +76,10 @@
 	let table: string | HTMLElement;
 	let tabulator: Tabulator;
 	let filter: HTMLInputElement;
+
+	let loading = true;
+	let fadeClass = '';
+
 	onMount(async () => {
 		const loadData = await load($page.params);
 		parsedTable = loadData.parsedTable;
@@ -156,39 +161,48 @@
 			columns: columns as any,
 			movableColumns: true
 		});
+		loading = false;
+		fadeClass = 'fade-in';
 	});
 </script>
 
-<DatasetNavbar datasetName={$page.params.db} />
-
-{#if prefaceData && parsedTable}
-	<main class="prose text-justify mx-auto mt-16">
-		<h1>Dataset: {prefaceData.name}</h1>
-		<h5>Dataset URL: <a href={prefaceData.datasetUrl}>Link</a></h5>
-	</main>
+{#if loading}
+	<div class="h-screen w-screen flex flex-col justify-center">
+		<div class="flex justify-center">
+			<span class="loading loading-infinity loading-lg text-primary" />
+		</div>
+	</div>
+{:else}
+	<div transition:fade>
+		<DatasetNavbar datasetName={$page.params.db} />
+		{#if prefaceData && parsedTable}
+			<main class="prose text-justify mx-auto mt-16">
+				<h1>Dataset: {prefaceData.name}</h1>
+				<h5>Dataset URL: <a href={prefaceData.datasetUrl}>Link</a></h5>
+			</main>
+		{/if}
+		<div class="divider w-[50%] mx-auto" />
+		<div class="prose text-justify mx-auto">
+			{#if parsedInfo}
+				{@html parsedInfo}
+			{/if}
+		</div>
+	</div>
+	<div class="divider w-[50%] mx-auto" />
+	<div transition:fade class="flex justify-center my-4">
+		<div class="font-bold my-auto mx-20 text-2xl">Leaderboard</div>
+		<input
+			type="text"
+			class="input input-primary input-sm w-60"
+			placeholder="Filter 🔎"
+			name="filter"
+			id="filter"
+			bind:this={filter}
+			on:input={setTableFilter}
+		/>
+	</div>
 {/if}
-
-<div class="divider w-[50%] mx-auto" />
-<div class="prose text-justify mx-auto">
-	{#if parsedInfo}
-		{@html parsedInfo}
-	{/if}
-</div>
-
-<div class="divider w-[50%] mx-auto" />
-<div class="flex justify-center my-4">
-	<div class="font-bold my-auto mx-20 text-2xl">Leaderboard</div>
-	<input
-		type="text"
-		class="input input-primary input-sm w-60"
-		placeholder="Filter 🔎"
-		name="filter"
-		id="filter"
-		bind:this={filter}
-		on:input={setTableFilter}
-	/>
-</div>
-<div class="w-[80%] mx-auto overflow-x-scroll">
+<div class={`w-[80%] mx-auto overflow-x-scroll ${fadeClass}`}>
 	<div bind:this={table} />
 </div>
 <svelte:head>
@@ -197,3 +211,21 @@
 		rel="stylesheet"
 	/>
 </svelte:head>
+
+<style>
+	.fade-in {
+		animation: fadein 2s;
+	}
+
+	@keyframes fadein {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	.w-80 {
+		opacity: 0;
+	}
+</style>

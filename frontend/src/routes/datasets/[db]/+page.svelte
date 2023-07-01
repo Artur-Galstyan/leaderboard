@@ -3,6 +3,7 @@
 	import { getGitHubFilesInFolder, getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let content: string | undefined;
 	let files: string[];
@@ -36,29 +37,43 @@
 		}
 	}
 
-	onMount(async () => {
+	async function prepare() {
 		const loadData = await load($page.params);
 		content = loadData.content;
 		files = loadData.files;
-	});
+	}
+
+	onMount(async () => {});
 </script>
 
-{#if content}
-	<article class="prose text-justify mx-auto my-8">
-		{@html content}
-	</article>
-{/if}
-
-{#if files}
-	<div class="flex justify-center">
-		<ul class="list list-decimal">
-			{#each files as file}
-				{#if file}
-					<li>
-						<a href={$page.url.pathname + '/' + file}>{file}</a>
-					</li>
-				{/if}
-			{/each}
-		</ul>
+{#await prepare()}
+	<div class="h-screen w-screen flex flex-col justify-center">
+		<div class="flex justify-center">
+			<span class="loading loading-infinity loading-lg text-primary" />
+		</div>
 	</div>
-{/if}
+{:then}
+	{#if content}
+		<article transition:fade class="prose text-justify mx-auto my-8">
+			{@html content}
+		</article>
+	{/if}
+
+	{#if files}
+		<div transition:fade class="flex justify-center">
+			<ul class="list list-decimal">
+				{#each files as file}
+					{#if file}
+						<li>
+							<a href={$page.url.pathname + '/' + file}>{file}</a>
+						</li>
+					{/if}
+				{/each}
+			</ul>
+		</div>
+	{/if}
+{:catch error}
+	<div>
+		Something went wrong while loading the data: {error.message}
+	</div>
+{/await}
