@@ -1,7 +1,5 @@
 ---
 name: LC-QuAD v1
-description: "The Largescale Complex Question Answering Dataset 1.0 (LC-QuAD 1.0) is a Question Answering dataset with 5000 pairs of question and its corresponding SPARQL query. The target knowledge base is DBpedia, specifically, the April, 2016 version. 
-Please see the original [paper](http://lc-quad.sda.tech/static/ISWC2017_paper_152.pdf) for details about the dataset creation process and framework."
 datasetUrl: https://github.com/AskNowQA/LC-QuAD
 ---
 
