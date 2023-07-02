@@ -1,5 +1,9 @@
 ---
-title: test
+    knowledgeGraphs:
+        - DBpedia
+        - Wikidata
+        - Freebase
+        - Others
 ---
 <div id="a-div">A Div</div>
 
