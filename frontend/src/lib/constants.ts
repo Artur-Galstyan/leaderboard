@@ -9,5 +9,9 @@ export const NUMERIC_FIELDS = [
 	'Hits@1',
 	'Hits@5',
 	'MRR',
-    'EM'
+	'EM',
+    'Lang_En',
+    'Lang_He',
+    'Lang_Kn',
+    'Lang_Zh',
 ];

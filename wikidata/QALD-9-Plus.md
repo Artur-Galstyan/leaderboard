@@ -1,46 +1,7 @@
-# Question Answering over Linked Data (QALD)
-
-**QALD** is a series of evaluation campaigns on question answering over linked data, which aims at providing an up-to-date benchmark for assessing and comparing 
-state-of-the-art systems that mediate between a user, expressing his or her information need in natural language, and RDF data. Thus, it targets all researchers 
-and practitioners working on querying Linked Data, natural language processing for question answering, multilingual information retrieval and related topics. The
-main goal is to gain insights into the strengths and shortcomings of different approaches and into possible solutions for coping with the large, heterogeneous and
-distributed nature of Semantic Web data.
-
-**QALD** challenge began in 2011 and is developing benchmarks that are increasingly being used as standard evaluation venue for question answering over Linked Data.
-Overviews of past instantiations of the challenge are available from the CLEF Working Notes, CEUR workshop notes as well as ESWC proceedings.
-
-The key challenge for QA over Linked Data is to translate a user's natural language query into such a form that it can be evaluated using standard Semantic Web query 
-processing and inferencing techniques. The main task of QALD therefore is the following:
-
-> Given one or several RDF dataset(s) as well as additional knowledge sources and natural language questions or keywords, return the correct answers or a SPARQL query 
-> that retrieves these answers.
-
-### Table of contents
-- [QALD-10](#qald-10)
-- [QALD-9-plus](#qald-9-plus)
-
-
-## QALD-10
-
-Please see the original [paper](https://ceur-ws.org/Vol-3196/) for details about the dataset creation process, data format, task and participating systems.
-
-### Leaderboard
-
-|       Model / System       |     Year     |   Precision   |    Recall     |      F1       |                            Language                             |                              Reported by                               |
-|:--------------------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------------------------------------------------------:|:----------------------------------------------------------------------:|
-| Borroto et al. (SPARQL-QA) |     2022     | 45.38 (Macro) | 45.74 (Macro) | 59.47 (Macro) |                               EN                                | [GERBIL](https://gerbil-qa.aksw.org/gerbil/experiment?id=202205200035) | 
-|          QAnswer           |     2022     | 50.68 (Macro) | 52.38 (Macro) | 57.76 (Macro) |                               EN                                | [GERBIL](https://gerbil-qa.aksw.org/gerbil/experiment?id=202205120000) |
-|      Steinmetz et al.      |     2022     | 32.06 (Macro) | 33.12 (Macro) | 49.09 (Macro) |                               EN                                | [GERBIL](https://gerbil-qa.aksw.org/gerbil/experiment?id=202205260012) |
-|      Baramiia et al.       |     2022     | 42.89 (Macro) | 42.72 (Macro) | 42.81 (Macro) |                               EN                                | [GERBIL](https://gerbil-qa.aksw.org/gerbil/experiment?id=202205210032) |
-|      Gavrilev et al.       |     2022     | 14.21 (Macro) | 14.00 (Macro) | 19.48 (Macro) |                               EN                                | [GERBIL](https://gerbil-qa.aksw.org/gerbil/experiment?id=202205210032) |
-
-
-
-## QALD-9-PLUS
-
- Please see the original [paper](https://ieeexplore.ieee.org/document/9736271) for details about the dataset creation process, data format, task and participating systems. 
-
- ### Leaderboard
+---
+    name: QALD-9-Plus
+    datasetUrl: https://github.com/KGQA/QALD_9_plus
+---
 
 |          Model / System           | Year |Precision| Recall |  F1   | Language |                                  Reported by                                   |
 |:---------------------------------:|:----:|:-------:|:------:|:-----:|:--------:|:------------------------------------------------------------------------------:|

@@ -1,11 +1,7 @@
-# CronQuestions
-
-**CronQuestions**<sup>[[1]](#myfootnote1)</sup> is the largest known Temporal KGQA dataset, clearly stratified into buckets of structural complexity. CronQuestions expands the only known previous dataset by a factor of 340×.
-This dataset consists of two parts: a KG with temporal annotations, and a set of natural language questions requiring temporal reasoning. Temporal KG was prepared by taking all facts with temporal 
-annotations from the WikiData subset. The QA dataset was generated with a set of templates for temporal reasoning. These were made using the five most frequent relations from our WikiData subset, namely
-_member of sports team_, _position held_, _award received_, _spouse_, and _employer_. 
-
-## Leaderboard: Overall
+---
+    name: CronQuestions
+    datasetUrl: https://github.com/cmavro/tempoqr
+---
 
 | Model / System | Year  | Hits@1 | Hits@10 |                         Reported by                          |
 |:--------------:|:-----:|:------:|:-------:|:------------------------------------------------------------:|
@@ -23,10 +19,3 @@ _member of sports team_, _position held_, _award received_, _spouse_, and _emplo
 |    RoBERTa     | 2021  |  0.07  |  0.202  |    [Saxena et. al.](https://arxiv.org/pdf/2106.01515.pdf)    |
 |    KnowBERT    | 2021  |  0.07  |  0.201  |    [Saxena et. al.](https://arxiv.org/pdf/2106.01515.pdf)    |
 |     T5-3B      | 2021  | 0.081  |    -    |    [Saxena et. al.](https://arxiv.org/pdf/2106.01515.pdf)    |
-
-
-## References
-<a name="myfootnote1">[1]</a> Saxena, Apoorv, Soumen Chakrabarti, and Partha Talukdar. [Question Answering Over Temporal Knowledge Graphs.](https://arxiv.org/abs/2106.01515) arXiv preprint arXiv:2106.01515 (2021).
-
-
-[Go back to the README](../README.md)
