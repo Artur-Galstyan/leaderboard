@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import DatasetNavbar from '$lib/components/DatasetNavbar.svelte';
+	import { NUMERIC_FIELDS } from '$lib/constants';
 	import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import * as htmlToJson from '$lib/utils/htmlToJson';
 	import matter from 'gray-matter';
@@ -12,6 +13,7 @@
 	let parsedTable: any;
 	let prefaceData: any;
 	let parsedInfo: any;
+	let parsedFooter: any;
 
 	function setTableFilter(event: Event) {
 		let filterString = (event.target as HTMLInputElement).value;
@@ -60,13 +62,30 @@
 			const githubUrlInfoReq = await fetch(githubUrlInfo);
 			const githubMarkdownTextInfo = await githubUrlInfoReq.text();
 			const parsedInfo = matter(githubMarkdownTextInfo);
-
 			const htmlContentInfo = marked.parse(parsedInfo.content, { mangle: false, headerIds: false });
+
+			let htmlFooter = undefined;
+			try {
+				const githubUrlFooter = getRawGitHubContent(
+					`Artur-Galstyan/leaderboard`,
+					`${params.db}/$${params.dataset}.md`
+				);
+				const githubUrlFooterReq = await fetch(githubUrlFooter);
+				if (githubUrlFooterReq.status == 404) {
+					throw Error('Not found');
+				}
+				const githubMarkdownFooter = await githubUrlFooterReq.text();
+				const parsedFooter = matter(githubMarkdownFooter);
+				htmlFooter = marked.parse(parsedFooter.content, { mangle: false, headerIds: false });
+			} catch (e) {
+				console.log("No footer found, that's ok");
+			}
 
 			return {
 				parsedTable: structuredClone(parsedTable),
 				prefaceData: prefaceData,
-				parsedInfo: htmlContentInfo
+				parsedInfo: htmlContentInfo,
+				parsedFooter: htmlFooter
 			};
 		} catch (e) {
 			throw new Error(`Failed to load dataset ${params.dataset} from ${params.db}, error ${e}`);
@@ -123,158 +142,41 @@
 		];
 
 		let objectKeys = Object.keys(parsedTable[0]);
+		columns = columns.filter((column) => objectKeys.includes(column.title));
 
-		if (objectKeys.includes('Gold Entity')) {
-			columns.push({
-				title: 'Gold Entity',
-				field: 'Gold Entity',
-				resizable: true
-			});
-		}
-		if (objectKeys.includes('Accuracy')) {
-			columns.push({
-				title: 'Accuracy',
-				field: 'Accuracy',
-				sorter: function (
-					a: any,
-					b: any,
-					aRow: any,
-					bRow: any,
-					column: any,
-					dir: any,
-					sorterParams: any
-				) {
-					if (a == '-') a = 0;
-					if (b == '-') b = 0;
-					return a - b;
-				}
-			});
-		}
-		if (objectKeys.includes('Exact Match')) {
-			columns.push({
-				title: 'Exact Match',
-				field: 'Exact Match',
-				sorter: function (
-					a: any,
-					b: any,
-					aRow: any,
-					bRow: any,
-					column: any,
-					dir: any,
-					sorterParams: any
-				) {
-					if (a == '-') a = 0;
-					if (b == '-') b = 0;
-					return a - b;
-				}
-			});
-		}
-		if (objectKeys.includes('Metric')) {
-			columns.push({
-				title: 'Metric',
-				field: 'Metric',
-				
-			});
-		}
-
-		if (objectKeys.includes('F-Score')) {
-			columns.push({
-				title: 'F-Score',
-				field: 'F-Score',
-				sorter: function (
-					a: any,
-					b: any,
-					aRow: any,
-					bRow: any,
-					column: any,
-					dir: any,
-					sorterParams: any
-				) {
-					if (a == '-') a = 0;
-					if (b == '-') b = 0;
-					return a - b;
-				}
-			});
-		}
-		if (objectKeys.includes('Precision@1')) {
-			columns.push({
-				title: 'Precision@1',
-				field: 'Precision@1',
-				sorter: function (
-					a: any,
-					b: any,
-					aRow: any,
-					bRow: any,
-					column: any,
-					dir: any,
-					sorterParams: any
-				) {
-					if (a == '-') a = 0;
-					if (b == '-') b = 0;
-					return a - b;
-				}
-			});
-		}
-		if (objectKeys.includes('Hits@1')) {
-			columns.push({
-				title: 'Hits@1',
-				field: 'Hits@1',
-				sorter: function (
-					a: any,
-					b: any,
-					aRow: any,
-					bRow: any,
-					column: any,
-					dir: any,
-					sorterParams: any
-				) {
-					if (a == '-') a = 0;
-					if (b == '-') b = 0;
-					return a - b;
-				}
-			});
-		}
-		if (objectKeys.includes('Hits@5')) {
-			columns.push({
-				title: 'Hits@5',
-				field: 'Hits@5',
-				sorter: function (
-					a: any,
-					b: any,
-					aRow: any,
-					bRow: any,
-					column: any,
-					dir: any,
-					sorterParams: any
-				) {
-					if (a == '-') a = 0;
-					if (b == '-') b = 0;
-					return a - b;
-				}
-			});
-		}
-		if (objectKeys.includes('MRR')) {
-			columns.push({
-				title: 'MRR',
-				field: 'MRR',
-				sorter: function (
-					a: any,
-					b: any,
-					aRow: any,
-					bRow: any,
-					column: any,
-					dir: any,
-					sorterParams: any
-				) {
-					if (a == '-') a = 0;
-					if (b == '-') b = 0;
-					return a - b;
-				}
-			});
+		for (let i = 0; i < objectKeys.length; i++) {
+			let currObjectKey = objectKeys[i];
+            if (columns.some(column => column.title == currObjectKey)) continue;
+			if (NUMERIC_FIELDS.includes(currObjectKey)) {
+				columns.push({
+					title: currObjectKey,
+					field: currObjectKey,
+					sorter: function (
+						a: any,
+						b: any,
+						aRow: any,
+						bRow: any,
+						column: any,
+						dir: any,
+						sorterParams: any
+					) {
+						if (a == '-') a = 0;
+						if (b == '-') b = 0;
+						return a - b;
+					}
+				});
+			} else {
+				columns.push({
+					title: currObjectKey,
+					field: currObjectKey,
+					resizable: true
+				});
+			}
 		}
 
 		prefaceData = loadData.prefaceData;
 		parsedInfo = loadData.parsedInfo;
+		parsedFooter = loadData.parsedFooter;
 		tabulator = new Tabulator(table, {
 			data: parsedTable,
 			layout: 'fitColumns', //fit columns to width of table (optional)
@@ -327,6 +229,13 @@
 <div class={`w-[80%] mx-auto overflow-x-scroll ${fadeClass}`}>
 	<div bind:this={table} />
 </div>
+
+<div class="prose text-justify mx-auto">
+	{#if parsedFooter}
+		{@html parsedFooter}
+	{/if}
+</div>
+
 <svelte:head>
 	<link
 		href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css"
