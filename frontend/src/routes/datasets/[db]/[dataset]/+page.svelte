@@ -150,6 +150,128 @@
 				}
 			});
 		}
+		if (objectKeys.includes('Exact Match')) {
+			columns.push({
+				title: 'Exact Match',
+				field: 'Exact Match',
+				sorter: function (
+					a: any,
+					b: any,
+					aRow: any,
+					bRow: any,
+					column: any,
+					dir: any,
+					sorterParams: any
+				) {
+					if (a == '-') a = 0;
+					if (b == '-') b = 0;
+					return a - b;
+				}
+			});
+		}
+		if (objectKeys.includes('Metric')) {
+			columns.push({
+				title: 'Metric',
+				field: 'Metric',
+				
+			});
+		}
+
+		if (objectKeys.includes('F-Score')) {
+			columns.push({
+				title: 'F-Score',
+				field: 'F-Score',
+				sorter: function (
+					a: any,
+					b: any,
+					aRow: any,
+					bRow: any,
+					column: any,
+					dir: any,
+					sorterParams: any
+				) {
+					if (a == '-') a = 0;
+					if (b == '-') b = 0;
+					return a - b;
+				}
+			});
+		}
+		if (objectKeys.includes('Precision@1')) {
+			columns.push({
+				title: 'Precision@1',
+				field: 'Precision@1',
+				sorter: function (
+					a: any,
+					b: any,
+					aRow: any,
+					bRow: any,
+					column: any,
+					dir: any,
+					sorterParams: any
+				) {
+					if (a == '-') a = 0;
+					if (b == '-') b = 0;
+					return a - b;
+				}
+			});
+		}
+		if (objectKeys.includes('Hits@1')) {
+			columns.push({
+				title: 'Hits@1',
+				field: 'Hits@1',
+				sorter: function (
+					a: any,
+					b: any,
+					aRow: any,
+					bRow: any,
+					column: any,
+					dir: any,
+					sorterParams: any
+				) {
+					if (a == '-') a = 0;
+					if (b == '-') b = 0;
+					return a - b;
+				}
+			});
+		}
+		if (objectKeys.includes('Hits@5')) {
+			columns.push({
+				title: 'Hits@5',
+				field: 'Hits@5',
+				sorter: function (
+					a: any,
+					b: any,
+					aRow: any,
+					bRow: any,
+					column: any,
+					dir: any,
+					sorterParams: any
+				) {
+					if (a == '-') a = 0;
+					if (b == '-') b = 0;
+					return a - b;
+				}
+			});
+		}
+		if (objectKeys.includes('MRR')) {
+			columns.push({
+				title: 'MRR',
+				field: 'MRR',
+				sorter: function (
+					a: any,
+					b: any,
+					aRow: any,
+					bRow: any,
+					column: any,
+					dir: any,
+					sorterParams: any
+				) {
+					if (a == '-') a = 0;
+					if (b == '-') b = 0;
+					return a - b;
+				}
+			});
+		}
 
 		prefaceData = loadData.prefaceData;
 		parsedInfo = loadData.parsedInfo;

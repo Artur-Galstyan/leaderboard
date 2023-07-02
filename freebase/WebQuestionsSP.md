@@ -1,13 +1,7 @@
-# WebQuestionsSP
-
-**WebQuestionsSP**<sup>[[1]](#myfootnote1)</sup> is the annotated version of WebQuestions, which contains questions that require a 1 or 2-hop relation path to arrive at the answer entity. 
-More specifically, about 40% of the questions require a 2-hop relation to reach the answer. Freebase is its backgound KB. Originally, it splits into 3,298 questions 
-as train set and 1,639 questions as test set. 
-
-This dataset can be downloaded via the [link](https://www.microsoft.com/en-us/download/details.aspx?id=52763).
-
-
-## Leaderboard 
+---
+    name: WebQuestionsSP
+    datasetUrl: https://www.microsoft.com/en-us/download/details.aspx?id=52763
+---
 
 |           Model / System            | Year |     F1     |   Hits@1   | Accuracy |Language |                                    Reported by                                     |
 |:-----------------------------------:|:----:|:----------:|:----------:|:--------:|:-------:|:----------------------------------------------------------------------------------:|
@@ -103,10 +97,3 @@ This dataset can be downloaded via the [link](https://www.microsoft.com/en-us/do
 |               ReifKB                | 2020 |     -      |    52.7    |    -     |   EN    |                [Cohen et al.](https://arxiv.org/pdf/2002.06115.pdf)                |
 |               KV-Mem                | 2022 |    38.6    |    46.7    |    -     |   EN    |                 [Du et al.](https://arxiv.org/pdf/2209.03005.pdf)                  |
 |        KGQA-RR(GPT2)               | 2023 |    -      |    -       |  18.11 |   EN    |                 [Hu et al.](https://arxiv.org/pdf/2303.10368.pdf)                  |
-
-
-## References 
-<a name="myfootnote1">[1]</a> Yih, Wen-tau, Matthew Richardson, Christopher Meek, Ming-Wei Chang, and Jina Suh. [The value of semantic parse labeling for knowledge base question answering.](http://anthology.aclweb.org/P16-2033) In Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers), pp. 201-206. 2016.
-
-
-[Go back to the README](../README.md)

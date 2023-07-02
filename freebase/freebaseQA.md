@@ -1,11 +1,7 @@
-# freebaseQA
-
-**freebaseQA**<sup>[[1]](#myfootnote1)</sup> is created for open-domain factoid question answering (QA) tasks over structured knowledge bases, like Freebase. Originally, it splits into 20,358 training, 3,994 eval and 3,996 test set.
-
-This dataset can be downloaded via the [link](https://github.com/kelvin-jiang/FreebaseQA).
-
-
-## Leaderboard 
+--- 
+    name: FreebaseQA
+    datasetUrl: https://github.com/kelvin-jiang/FreebaseQA
+---
 
 |  Model / System  | Year | Exact Match | Accuracy | Hits@1 | Language |                      Reported by                      |
 |:----------------:|:----:|:-----------:|:--------:|:--------:|:--------:|:-----------------------------------------------------:|
@@ -52,9 +48,3 @@ This dataset can be downloaded via the [link](https://github.com/kelvin-jiang/Fr
 |     T5-base      | 2022 |    27.55    |    -     |   -  |  EN     |   [Moiseev et al.](https://arxiv.org/pdf/2205.08184.pdf)    |
 |  KGQA-RR(GPT2)| 2023 |     - |  5.09   |  -  |   EN     |  [Hu et al.](https://arxiv.org/pdf/2303.10368.pdf)   |
 
-
-
-## References 
-<a name="myfootnote1">[1]</a> Jiang, Kelvin et al. “FreebaseQA: A New Factoid QA Data Set Matching Trivia-Style Question-Answer Pairs with Freebase.” NAACL (2019).
-
-[Go back to the README](../README.md)

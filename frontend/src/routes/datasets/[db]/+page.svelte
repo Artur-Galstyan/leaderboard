@@ -54,13 +54,13 @@
 	</div>
 {:then}
 	{#if content}
-		<article transition:fade class="prose text-justify mx-auto my-8">
+		<article transition:fade|local class="prose text-justify mx-auto my-8">
 			{@html content}
 		</article>
 	{/if}
 
 	{#if files}
-		<div transition:fade class="flex justify-center">
+		<div transition:fade|local class="flex justify-center">
 			<ul class="list list-decimal">
 				{#each files as file}
 					{#if file}
