@@ -1,4 +1,11 @@
-## Leaderboard: Overall
+---
+    name: GrailQA
+    datasetUrl: https://dki-lab.github.io/GrailQA/
+    tableTitles:
+        - Overall
+        - Compositional Generalization
+        - Zero-shot Generalization
+---
 
 |          Model / System           | Year |   EM   |   F1   |                        Reported by                         |
 |:---------------------------------:|:----:|:------:|:------:|:----------------------------------------------------------:|
@@ -24,7 +31,7 @@
 |            GPT-3                  | 2023 | 27.58  |     -  |       [Tan et. al.](https://arxiv.org/pdf/2303.07992.pdf)  |
 | GloVe+Transduction (single model) | 2021 | 17.587 | 18.432 |       [Gu et. al.](https://arxiv.org/abs/2011.07743)       |
 
-## Leaderboard: Compositional Generalization 
+
 
 |          Model / System           | Year |   EM   |   F1   |                        Reported by                         |
 |:---------------------------------:|:----:|:------:|:------:|:----------------------------------------------------------:|
@@ -44,7 +51,7 @@
 | QGG | 2022 | - |33.0|     [Yu et. al.](https://arxiv.org/pdf/2210.00063.pdf)     |
 | GloVe+Transduction (single model) | 2021 | 16.441 | 18.507 |       [Gu et. al.](https://arxiv.org/abs/2011.07743)       |
 
-## Leaderboard: Zero-shot Generalization
+
 
 |          Model / System           | Year |   EM   |   F1   |                        Reported by                         |
 |:---------------------------------:|:----:|:------:|:------:|:----------------------------------------------------------:|
@@ -63,4 +70,3 @@
 |   GloVe+Ranking (single model)    | 2021 | 28.886 | 33.792 |       [Gu et. al.](https://arxiv.org/abs/2011.07743)       |
 | BERT+Transduction (single model)  | 2021 | 25.702 | 29.300 |       [Gu et. al.](https://arxiv.org/abs/2011.07743)       |
 | GloVe+Transduction (single model) | 2021 | 2.968  | 3.123  |       [Gu et. al.](https://arxiv.org/abs/2011.07743)       |
-
