@@ -42,6 +42,7 @@
 		"buffer": "^6.0.3",
 		"cheerio": "^1.0.0-rc.12",
 		"events": "^3.3.0",
+		"fuse.js": "^6.6.2",
 		"gray-matter": "^4.0.3",
 		"html-table-to-json": "^1.0.0",
 		"marked": "^5.1.0",
