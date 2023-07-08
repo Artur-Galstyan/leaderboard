@@ -7,22 +7,23 @@
 	import { fade } from 'svelte/transition';
 
 	let prefaceData: any;
-
+	let content: string | undefined;
 	async function load() {
 		try {
 			const githubUrl = getRawGitHubContent(`Artur-Galstyan/leaderboard/`, 'README.md');
-
 			const githubMarkdownTextReq = await fetch(githubUrl);
 			const githubMarkdownText = await githubMarkdownTextReq.text();
-
 			const parsed = matter(githubMarkdownText);
+
+			const htmlContent = marked.parse(parsed.content, { mangle: false, headerIds: false });
 
 			const prefaceData = {
 				knowledgeGraphs: parsed.data.knowledgeGraphs
 			};
 
 			return {
-				prefaceData: prefaceData
+				prefaceData: prefaceData,
+				content: htmlContent
 			};
 		} catch (e) {
 			throw new Error(`Failed to load, error ${e}`);
@@ -32,6 +33,7 @@
 	onMount(async () => {
 		const loadedData = await load();
 		prefaceData = loadedData.prefaceData;
+		content = loadedData.content;
 	});
 </script>
 
@@ -48,5 +50,11 @@
 				{/if}
 			{/each}
 		</ul>
+	</div>
+{/if}
+
+{#if content}
+	<div class="prose text-justify mx-auto">
+		{@html content}
 	</div>
 {/if}

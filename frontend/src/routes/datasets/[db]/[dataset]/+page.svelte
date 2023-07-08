@@ -102,91 +102,95 @@
 	onMount(async () => {
 		const loadData = await load($page.params);
 		parsedTable = loadData.parsedTable;
-		let columns = [
-			{
-				title: 'Model / System',
-				field: 'Model / System',
-				resizable: true
-			},
-			{
-				title: 'Year',
-				field: 'Year',
-				resizable: true
-			},
-			{
-				title: 'Precision',
-				field: 'Precision',
-				resizable: true
-			},
-			{
-				title: 'Recall',
-				field: 'Recall',
-				resizable: true
-			},
-			{
-				title: 'F1',
-				field: 'F1',
-				resizable: true
-			},
-			{
-				title: 'Language',
-				field: 'Language',
-				resizable: true
-			},
-			{
-				title: 'Reported by',
-				field: 'Reported by',
-				formatter: 'html',
-				resizable: true
-			}
-		];
-
-		let objectKeys = Object.keys(parsedTable[0]);
-		columns = columns.filter((column) => objectKeys.includes(column.title));
-
-		for (let i = 0; i < objectKeys.length; i++) {
-			let currObjectKey = objectKeys[i];
-            if (columns.some(column => column.title == currObjectKey)) continue;
-			if (NUMERIC_FIELDS.includes(currObjectKey)) {
-				columns.push({
-					title: currObjectKey,
-					field: currObjectKey,
-					sorter: function (
-						a: any,
-						b: any,
-						aRow: any,
-						bRow: any,
-						column: any,
-						dir: any,
-						sorterParams: any
-					) {
-						if (a == '-') a = 0;
-						if (b == '-') b = 0;
-						return a - b;
-					}
-				});
-			} else {
-				columns.push({
-					title: currObjectKey,
-					field: currObjectKey,
-					resizable: true
-				});
-			}
-		}
-
 		prefaceData = loadData.prefaceData;
 		parsedInfo = loadData.parsedInfo;
 		parsedFooter = loadData.parsedFooter;
-		tabulator = new Tabulator(table, {
-			data: parsedTable,
-			layout: 'fitColumns', //fit columns to width of table (optional)
-			height: '500', //height of table (optional)
-			reactiveData: true, //enable data reactivity
-			columns: columns as any,
-			movableColumns: true
-		});
-		loading = false;
+
 		fadeClass = 'fade-in';
+		if (parsedTable) {
+			let columns = [
+				{
+					title: 'Model / System',
+					field: 'Model / System',
+					resizable: true
+				},
+				{
+					title: 'Year',
+					field: 'Year',
+					resizable: true
+				},
+				{
+					title: 'Precision',
+					field: 'Precision',
+					resizable: true
+				},
+				{
+					title: 'Recall',
+					field: 'Recall',
+					resizable: true
+				},
+				{
+					title: 'F1',
+					field: 'F1',
+					resizable: true
+				},
+				{
+					title: 'Language',
+					field: 'Language',
+					resizable: true
+				},
+				{
+					title: 'Reported by',
+					field: 'Reported by',
+					formatter: 'html',
+					resizable: true
+				}
+			];
+			let objectKeys = Object.keys(parsedTable[0]);
+			columns = columns.filter((column) => objectKeys.includes(column.title));
+
+			for (let i = 0; i < objectKeys.length; i++) {
+				let currObjectKey = objectKeys[i];
+				if (columns.some((column) => column.title == currObjectKey)) continue;
+				if (NUMERIC_FIELDS.includes(currObjectKey)) {
+					columns.push({
+						title: currObjectKey,
+						field: currObjectKey,
+						sorter: function (
+							a: any,
+							b: any,
+							aRow: any,
+							bRow: any,
+							column: any,
+							dir: any,
+							sorterParams: any
+						) {
+							if (a == '-') a = 0;
+							if (b == '-') b = 0;
+							return a - b;
+						}
+					});
+				} else {
+					columns.push({
+						title: currObjectKey,
+						field: currObjectKey,
+						resizable: true
+					});
+				}
+			}
+
+			tabulator = new Tabulator(table, {
+				data: parsedTable,
+				layout: 'fitColumns', //fit columns to width of table (optional)
+				height: '500', //height of table (optional)
+				reactiveData: true, //enable data reactivity
+				columns: columns as any,
+				movableColumns: true
+			});
+		} else {
+			console.log('No table found');
+		}
+		loading = false;
 	});
 </script>
 
@@ -197,7 +201,7 @@
 		</div>
 	</div>
 {:else}
-	<div transition:fade>
+	<div transition:fade|local>
 		<DatasetNavbar datasetName={$page.params.db} />
 		{#if prefaceData && parsedTable}
 			<main class="prose text-justify mx-auto mt-16">
@@ -213,9 +217,16 @@
 		</div>
 	</div>
 	<div class="divider w-[50%] mx-auto" />
-	<div transition:fade class="flex justify-center my-4">
-		<div class="font-bold my-auto mx-20 text-2xl">Leaderboard</div>
+	<div id="leaderboard-header" transition:fade|local class="flex justify-center my-4">
+		<div class="font-bold my-auto mx-20 text-2xl">
+			{#if parsedTable == null}
+				No Leaderboard for this dataset yet
+			{:else}
+				Leaderboard
+			{/if}
+		</div>
 		<input
+			class:hidden={parsedTable == null}
 			type="text"
 			class="input input-primary input-sm w-60"
 			placeholder="Filter 🔎"
@@ -226,7 +237,11 @@
 		/>
 	</div>
 {/if}
-<div class={`w-[80%] mx-auto overflow-x-scroll ${fadeClass}`}>
+<div
+	class:hidden={parsedTable == null}
+	id="leaderboard-wrapper"
+	class={`w-[80%] mx-auto overflow-x-scroll ${fadeClass}`}
+>
 	<div bind:this={table} />
 </div>
 
@@ -235,7 +250,7 @@
 		{@html parsedFooter}
 	{/if}
 </div>
-
+<div class="my-20" />
 <svelte:head>
 	<link
 		href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css"

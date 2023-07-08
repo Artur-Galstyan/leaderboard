@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import KnowledgeGraphNavbar from '$lib/components/KnowledgeGraphNavbar.svelte';
 	import { getGitHubFilesInFolder, getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
@@ -23,7 +24,9 @@
 
 			const files = rawFiles.map((file: { name: string }) => {
 				file.name = file.name.replace('.md', '');
-				return file.name == 'README' || file.name[0] == '^' || file.name[0] == '$' ? undefined : file.name;
+				return file.name == 'README' || file.name[0] == '^' || file.name[0] == '$'
+					? undefined
+					: file.name;
 			});
 
 			return {
@@ -46,6 +49,7 @@
 	onMount(async () => {});
 </script>
 
+<KnowledgeGraphNavbar />
 {#await prepare()}
 	<div class="h-screen w-screen flex flex-col justify-center">
 		<div class="flex justify-center">
