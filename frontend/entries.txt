@@ -16,7 +16,6 @@
 /datasets/dbpedia/Reword-QALD-9
 /datasets/dbpedia/SimpleDBpediaQA
 /datasets/dbpedia/QALD-9-Plus
-
 /datasets/freebase/
 /datasets/freebase/ComplexQuestions
 /datasets/freebase/ComplexWebQuestions
@@ -36,7 +35,6 @@
 /datasets/freebase/The 30M Factoid QA
 /datasets/freebase/WebQuestions
 /datasets/freebase/WebQuestionsSP
-
 /datasets/wikidata/
 /datasets/wikidata/CLC-QuAD
 /datasets/wikidata/Compositional Wikidata Questions
@@ -54,7 +52,6 @@
 /datasets/wikidata/TimeQuestions - Ordinal
 /datasets/wikidata/TimeQuestions - Overall
 /datasets/wikidata/TKGQA
-
 /datasets/other/
 /datasets/other/COVID-QA
 /datasets/other/CrunchQA
