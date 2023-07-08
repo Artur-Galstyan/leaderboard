@@ -4,9 +4,9 @@ import fs from 'fs';
 import readline from 'readline';
 import preprocess from 'svelte-preprocess';
 
-async function getEntriesFromTxtFile(path) {
+async function getEntriesFromTxtFile(relativePath) {
 	let entries = [];
-
+	const path = new URL(relativePath, import.meta.url).pathname;
 	const fileStream = fs.createReadStream(path);
 	const rl = readline.createInterface({
 		input: fileStream,
