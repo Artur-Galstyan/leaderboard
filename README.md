@@ -3,7 +3,7 @@
         - DBpedia
         - Wikidata
         - Freebase
-        - Others
+        - Other
 ---
 <div id="a-div">A Div</div>
 
