@@ -41,7 +41,7 @@
 		const loadedData = await load();
 		prefaceData = loadedData.prefaceData;
 		content = loadedData.content;
-		const res = await fetch('leaderboard/entries.txt');
+		const res = await fetch('entries.txt');
 		let entries: string[] = [];
 		if (res.ok) {
 			const text = await res.text();
