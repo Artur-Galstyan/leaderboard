@@ -5,16 +5,15 @@
 		<link rel="icon" href="../../favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		
-		<link href="../../_app/immutable/assets/0.f0459df0.css" rel="stylesheet">
+		<link href="../../_app/immutable/assets/0.973cb3ad.css" rel="stylesheet">
 		<link href="../../_app/immutable/assets/4.50f8343f.css" rel="stylesheet">
-		<link rel="modulepreload" href="../../_app/immutable/entry/start.3ed8c1c1.js">
-		<link rel="modulepreload" href="../../_app/immutable/chunks/index.8d8be17e.js">
-		<link rel="modulepreload" href="../../_app/immutable/chunks/singletons.eaafce6f.js">
-		<link rel="modulepreload" href="../../_app/immutable/entry/app.35a04dd2.js">
-		<link rel="modulepreload" href="../../_app/immutable/nodes/0.b77b3e2e.js">
-		<link rel="modulepreload" href="../../_app/immutable/nodes/4.dad9c2b8.js">
-		<link rel="modulepreload" href="../../_app/immutable/chunks/stores.770d0014.js">
-		<link rel="modulepreload" href="../../_app/immutable/chunks/index.38960f65.js">
+		<link rel="modulepreload" href="../../_app/immutable/entry/start.98213be1.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/index.02751abd.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/singletons.a10664cf.js">
+		<link rel="modulepreload" href="../../_app/immutable/entry/app.ae0dff96.js">
+		<link rel="modulepreload" href="../../_app/immutable/nodes/0.c03cbdb6.js">
+		<link rel="modulepreload" href="../../_app/immutable/nodes/4.bd3b4b84.js">
+		<link rel="modulepreload" href="../../_app/immutable/chunks/index.5635c42a.js">
 		<link rel="modulepreload" href="../../_app/immutable/chunks/index.d11ea5b9.js"><!-- HEAD_svelte-1256386_START --><link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet"><!-- HEAD_svelte-1256386_END -->
 	</head>
 	<body data-sveltekit-preload-data="hover">
@@ -22,17 +21,17 @@
 
 
 <div class="h-screen w-screen flex flex-col justify-center"><div class="flex justify-center"><span class="loading loading-infinity loading-lg text-primary"></span></div></div>
-<div class="w-[80%] mx-auto overflow-x-scroll  svelte-1w85bai"><div></div></div>
+<div id="leaderboard-wrapper" class="w-[80%] mx-auto overflow-x-scroll  svelte-1w85bai hidden"><div></div></div>
 
 <div class="prose text-justify mx-auto"></div>
-
+<div class="my-20"></div>
 
 
 
 			
 			<script>
 				{
-					__sveltekit_em8xgx = {
+					__sveltekit_mkg9pu = {
 						base: new URL("../..", location).pathname.slice(0, -1),
 						env: {}
 					};
@@ -42,8 +41,8 @@
 					const data = [null,null];
 
 					Promise.all([
-						import("../../_app/immutable/entry/start.3ed8c1c1.js"),
-						import("../../_app/immutable/entry/app.35a04dd2.js")
+						import("../../_app/immutable/entry/start.98213be1.js"),
+						import("../../_app/immutable/entry/app.ae0dff96.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element, {
 							node_ids: [0, 4],
