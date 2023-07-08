@@ -48,7 +48,7 @@
 			entries = text.split('\n');
 		}
 		for (let i = 0; i < entries.length; i++) {
-			let url = entries[i];
+			let url = entries[i].slice(1);
 			let splitted = url.split('/');
 			let dbName = splitted[splitted.length - 1];
 			if (dbName && url) {
