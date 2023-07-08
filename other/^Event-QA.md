@@ -9,10 +9,6 @@ The current version of Event-QA contains questions in English, Portuguese and Ge
 
 The Event-QA generation pipeline is done by random walk sub-graph traversal. 
 
-## Leaderboard
 
 ## References
 <a name="myfootnote1">[1]</a> Souza Costa, Tarcísio, Simon Gottschalk, and Elena Demidova. [Event-QA: A dataset for event-centric question answering over knowledge graphs.](https://eventcqa.l3s.uni-hannover.de/paper.pdf) In Proceedings of the 29th ACM International Conference on Information & Knowledge Management, pp. 3157-3164. 2020.
-
-
-[Go back to the README](../README.md)
