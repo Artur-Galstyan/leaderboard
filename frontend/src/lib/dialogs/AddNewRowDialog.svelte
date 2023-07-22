@@ -2,7 +2,8 @@
 	import { currentPRChanges, initPRChanges } from '$lib/currentPRChanges';
 	import { currentTabulator } from '$lib/currentTabulator';
 	import { toggleDialog } from '$lib/dialogs/dialogUtils';
-	import { notifySuccess } from '$lib/notifications';
+	import { notifyError, notifySuccess } from '$lib/notifications';
+	import { currentNewTabulatorRows } from '$lib/states/currentNewTabulatorRows';
 	import { onMount } from 'svelte';
 	import type { Tabulator } from 'tabulator-tables';
 
@@ -78,22 +79,27 @@
 
 		<div class="flex justify-center space-x-4">
 			<button
-				on:click={() => {
+				on:click={async () => {
 					toggleDialog(`add-new-row-${dataset}`);
 					toggleDialog(`are-you-sure-row-${dataset}`);
-					let newRow = currentColumns.map((column) => {
-						console.log(column.getField());
-						return {
-							key: column.getField(),
-							value: currentColumnInputs[column.getField()]
-						};
-					});
 
-					if (!$currentPRChanges) $currentPRChanges = initPRChanges();
-					$currentPRChanges.rows.push({
-						dataset: dataset,
-						row: newRow
+					// loop over the keys
+					let newRowToAdd = {};
+					currentColumns.forEach((col) => {
+						newRowToAdd[col.getField()] = currentColumnInputs[col.getField()];
 					});
+					console.log('Attempting to add new row', newRowToAdd);
+					let newTabulatorRow = await $currentTabulator?.addRow(newRowToAdd);
+					if (!newTabulatorRow) {
+						notifyError('Error adding new row!', `Error adding new row to dataset ${dataset}`);
+						return;
+					}
+					if (!$currentPRChanges) $currentPRChanges = initPRChanges();
+					$currentPRChanges.newRows.push({
+						dataset: dataset,
+						row: newTabulatorRow
+					});
+					$currentNewTabulatorRows.push(newTabulatorRow);
 					$currentPRChanges.lastChange = 'row';
 					notifySuccess(
 						'New row added successfully!',

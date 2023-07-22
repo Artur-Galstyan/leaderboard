@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import type { RowComponent } from 'tabulator-tables';
 
 export type NewColumn = {
 	dataset: string;
@@ -8,15 +9,12 @@ export type NewColumn = {
 
 export type NewRow = {
 	dataset: string;
-	row: {
-		key: string;
-		value: string;
-	}[];
+	row: RowComponent;
 };
 
 export type NewPR = {
-	columns: NewColumn[];
-	rows: NewRow[];
+	newColumns: NewColumn[];
+	newRows: NewRow[];
 	lastChange: 'column' | 'row' | null;
 };
 
@@ -24,8 +22,8 @@ export const currentPRChanges = writable<NewPR | null>(null);
 
 export function initPRChanges() {
 	return {
-		columns: [],
-		rows: [],
+		newColumns: [],
+		newRows: [],
 		lastChange: null
 	} as NewPR;
 }

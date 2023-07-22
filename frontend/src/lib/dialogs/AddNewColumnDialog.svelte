@@ -72,7 +72,7 @@
 					toggleDialog(`add-new-column-${dataset}`);
 					toggleDialog(`are-you-sure-${dataset}`);
 					if (!$currentPRChanges) $currentPRChanges = initPRChanges();
-					$currentPRChanges.columns.push({
+					$currentPRChanges.newColumns.push({
 						dataset: dataset,
 						column: newColumnName,
 						numerical: newColumnNumerical

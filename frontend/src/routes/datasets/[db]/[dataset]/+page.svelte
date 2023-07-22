@@ -7,12 +7,17 @@
 	import { currentTabulator } from '$lib/currentTabulator';
 	import AddNewColumnDialog from '$lib/dialogs/AddNewColumnDialog.svelte';
 	import AddNewRowDialog from '$lib/dialogs/AddNewRowDialog.svelte';
+	import ShowRowDialog from '$lib/dialogs/ShowRowDialog.svelte';
 	import { toggleDialog } from '$lib/dialogs/dialogUtils';
+	import { currentNewTabulatorRows } from '$lib/states/currentNewTabulatorRows';
+	import { currentlySelectedRow } from '$lib/states/currentlySelectedRow';
 	import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import * as htmlToJson from '$lib/utils/htmlToJson';
 	import matter from 'gray-matter';
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
+	import Icon from 'svelte-icons-pack';
+	import BiSave from 'svelte-icons-pack/bi/BiSave';
 	import { fade } from 'svelte/transition';
 	import { type Formatter, TabulatorFull as Tabulator } from 'tabulator-tables';
 
@@ -21,20 +26,18 @@
 	let parsedInfo: any;
 	let parsedFooter: any;
 
+	let cellEdited = false;
+
 	function setTableFilter(event: Event) {
 		let filterString = (event.target as HTMLInputElement).value;
+		let fields = $currentTabulator?.getColumns().map((column) => column.getField());
 		if (filterString && $currentTabulator) {
 			$currentTabulator.setFilter([
 				[],
 				[
-					{ field: 'Model / System', type: 'like', value: filterString },
-					{ field: 'Year', type: 'like', value: filterString },
-					{ field: 'Accuracy', type: 'like', value: filterString },
-					{ field: 'Precision', type: 'like', value: filterString },
-					{ field: 'Recall', type: 'like', value: filterString },
-					{ field: 'F1', type: 'like', value: filterString },
-					{ field: 'Language', type: 'like', value: filterString },
-					{ field: 'Reported By', type: 'like', value: filterString }
+					fields?.map((field) => {
+						return { field: field, type: 'like', value: filterString };
+					}) as any
 				]
 			]);
 		} else if ($currentTabulator) {
@@ -117,38 +120,45 @@
 				{
 					title: 'Model / System',
 					field: 'Model / System',
-					resizable: true
+					resizable: true,
+					editor: 'input'
 				},
 				{
 					title: 'Year',
 					field: 'Year',
-					resizable: true
+					resizable: true,
+					editor: 'input'
 				},
 				{
 					title: 'Precision',
 					field: 'Precision',
-					resizable: true
+					resizable: true,
+					editor: 'input'
 				},
 				{
 					title: 'Recall',
 					field: 'Recall',
-					resizable: true
+					resizable: true,
+					editor: 'input'
 				},
 				{
 					title: 'F1',
 					field: 'F1',
-					resizable: true
+					resizable: true,
+					editor: 'input'
 				},
 				{
 					title: 'Language',
 					field: 'Language',
-					resizable: true
+					resizable: true,
+					editor: 'input'
 				},
 				{
 					title: 'Reported by',
 					field: 'Reported by',
 					formatter: 'html',
-					resizable: true
+					resizable: true,
+					editor: 'input'
 				}
 			];
 			let objectKeys = Object.keys(parsedTable[0]);
@@ -179,7 +189,8 @@
 					columns.push({
 						title: currObjectKey,
 						field: currObjectKey,
-						resizable: true
+						resizable: true,
+						editor: 'input'
 					});
 				}
 			}
@@ -193,20 +204,24 @@
 				movableColumns: true
 			});
 
-			$currentTabulator.on('tableBuilt', () => {
+			$currentTabulator.on('tableBuilt', async () => {
 				if ($currentPRChanges) {
 					console.log('Applying changes from loaded PR');
-					if ($currentPRChanges.columns.length > 0) {
+					if ($currentPRChanges.newColumns.length > 0) {
 						console.log('Applying columns');
-						$currentPRChanges.columns.forEach((column) => {
+						$currentPRChanges.newColumns.forEach((column) => {
 							addNewColumnToTable(column);
 						});
 					}
-					if ($currentPRChanges.rows.length > 0) {
+					if ($currentPRChanges.newRows.length > 0) {
 						console.log('Applying rows');
-						$currentPRChanges.rows.forEach((row) => {
+						$currentPRChanges.newRows.forEach(async (row) => {
 							console.log('Adding row', row);
-							addNewRowToTable(row);
+							let newRow = await $currentTabulator?.addRow(row.row);
+							if (newRow) {
+								row.row = newRow;
+								$currentNewTabulatorRows.push(row.row);
+							}
 						});
 					}
 					$currentTabulator?.redraw(true);
@@ -214,6 +229,14 @@
 				}
 
 				$currentTabulator = $currentTabulator;
+			});
+
+			$currentTabulator.on('rowDblClick', (e, row) => {
+				$currentlySelectedRow = row;
+				toggleDialog('show-row-dialog');
+			});
+			$currentTabulator.on('cellEdited', function (cell) {
+				cellEdited = true;
 			});
 		} else {
 			console.log('No table found');
@@ -232,19 +255,24 @@
 	currentPRChanges.subscribe((changes) => {
 		if (changes) {
 			if (changes.lastChange === 'column') {
-				let lastColumn = changes.columns[changes.columns.length - 1];
+				let lastColumn = changes.newColumns[changes.newColumns.length - 1];
 				console.log('Adding new column', lastColumn);
 				addNewColumnToTable(lastColumn);
-			} else if (changes.lastChange === 'row') {
-				let lastRow = changes.rows[changes.rows.length - 1];
-				console.log('Adding new row', lastRow);
-				addNewRowToTable(lastRow);
 			}
 			// store this object as a cookie
-			if (browser) {
+			if (browser && changes.lastChange !== null) {
+				console.log('Storing changes in cookie!');
+				let changesToStore: any = {};
+				changesToStore.newColumns = changes.newColumns;
+				changesToStore.newRows = changes.newRows.map((row) => {
+					return {
+						dataset: row.dataset,
+						row: JSON.stringify(row.row.getData())
+					};
+				});
 				let cookie = {
 					name: `pr-changes`,
-					value: JSON.stringify(changes)
+					value: JSON.stringify(changesToStore)
 				};
 				console.log('Setting cookie');
 				document.cookie = `${cookie.name}=${cookie.value};path=/;SameSite=Lax`;
@@ -261,7 +289,8 @@
 		let column = {
 			title: columnTitle,
 			field: columnTitle,
-			resizable: true
+			resizable: true,
+			editor: 'input'
 		};
 
 		if (columnType) {
@@ -290,10 +319,9 @@
 		}
 
 		$currentTabulator?.redraw(true);
-		$currentTabulator = $currentTabulator;
 	}
 
-	function addNewRowToTable(newRow: any) {
+	async function addNewRowToTable(newRow: any) {
 		if (newRow.dataset != $page.params.db + '/' + $page.params.dataset) return;
 		let row: any = {};
 		for (let i = 0; i < newRow.row.length; i++) {
@@ -301,9 +329,11 @@
 			row[column.key] = column.value;
 		}
 
-		$currentTabulator?.addRow(row);
+		let newTabulatorRow = await $currentTabulator?.addRow(row);
+		if (newTabulatorRow) {
+			$currentNewTabulatorRows.push(newTabulatorRow);
+		}
 		$currentTabulator?.redraw(true);
-		$currentTabulator = $currentTabulator;
 	}
 </script>
 
@@ -352,6 +382,11 @@
 			bind:this={filter}
 			on:input={setTableFilter}
 		/>
+		{#if cellEdited}
+			<div transition:fade|local class="my-auto mx-4 cursor-pointer">
+				<Icon src={BiSave} color="purple" className="w-6 h-6" />
+			</div>
+		{/if}
 	</div>
 {/if}
 <div
@@ -385,6 +420,7 @@
 
 <AddNewColumnDialog dataset={$page.params.db + '/' + $page.params.dataset} />
 <AddNewRowDialog dataset={$page.params.db + '/' + $page.params.dataset} />
+<ShowRowDialog />
 
 <style>
 	.fade-in {

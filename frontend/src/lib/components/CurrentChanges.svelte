@@ -15,16 +15,17 @@
 				<div>
 					New Rows:
 					<ul>
-						{#each $currentPRChanges.rows as row}
+						{#each $currentPRChanges.newRows as row}
 							<li>
 								{row.dataset} -
 								<button
 									on:click|preventDefault={async () => {
 										await Swal.fire({
 											title: 'Row',
-											html: `<div class="grid grid-cols-2">${row.row.map((field) => {
-												return `<div>${field.key}</div> <div>${field.value}</div>`;
-											})}</div>`.replace(/,/g, ''),
+											html: `<div class="grid grid-cols-2">
+												${row.row.getCells().map((field) => {
+													return `<div>${field.getField()}</div> <div>${field.getValue()}</div>`;
+												})}</div>`.replace(/,/g, ''),
 											target: dialogElement,
 											showClass: {
 												popup: 'animate__animated animate__fadeIn animate__faster'
@@ -44,7 +45,7 @@
 				<div>
 					New Columns:
 					<ul>
-						{#each $currentPRChanges.columns as column}
+						{#each $currentPRChanges.newColumns as column}
 							<li>
 								{column.dataset} - {column.column} - {column.numerical
 									? 'Numerical'

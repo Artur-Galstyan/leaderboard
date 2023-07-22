@@ -20,7 +20,7 @@
 </script>
 
 <div class="absolute top-10 right-10">
-	{#if $currentPRChanges && ($currentPRChanges.columns.length > 0 || $currentPRChanges.rows.length > 0)}
+	{#if $currentPRChanges && ($currentPRChanges.newColumns.length > 0 || $currentPRChanges.newRows.length > 0)}
 		<button
 			transition:fade
 			on:click={() => {

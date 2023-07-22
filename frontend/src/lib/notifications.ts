@@ -19,3 +19,11 @@ export function notifySuccess(title: string, message: string) {
 		text: message
 	});
 }
+
+export function notifyError(title: string, message: string) {
+	Toast.fire({
+		icon: 'error',
+		title: title,
+		text: message
+	});
+}
