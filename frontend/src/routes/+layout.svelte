@@ -9,18 +9,18 @@
 
 	onMount(() => {
 		// check if "pr-changes" cookie exists and if yes store it
-		const cookie = document.cookie.split('; ').find((row) => row.startsWith('pr-changes='));
-		if (cookie) {
-			const cookieValue = cookie.split('=')[1];
-			let parsedData = JSON.parse(cookieValue);
+		let data = localStorage.getItem('pr-changes');
+		if (data) {
+			console.log("Found 'pr-changes' cookie, setting currentPRChanges");
+			let parsedData = JSON.parse(data);
 			parsedData.lastChange = null;
 			currentPRChanges.set(parsedData);
 		}
 	});
 </script>
 
-<div class="absolute top-10 right-10">
-	{#if $currentPRChanges && ($currentPRChanges.newColumns.length > 0 || $currentPRChanges.newRows.length > 0)}
+<div class="fixed top-10 right-10">
+	{#if $currentPRChanges && ($currentPRChanges.newColumns.length > 0 || $currentPRChanges.newRows.length > 0 || $currentPRChanges.newLeaderboards.length > 0 || $currentPRChanges.changedRows.length > 0)}
 		<button
 			transition:fade
 			on:click={() => {

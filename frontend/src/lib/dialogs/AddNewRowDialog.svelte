@@ -34,23 +34,33 @@
 
 		<div class="grid grid-cols-2 gap-x-4 gap-y-2">
 			{#each currentColumns as column}
-				<div class="text-xs">{column.getField()}</div>
-				<input
-					type="text"
-					class="input input-primary input-sm w-full"
-					placeholder={column.getField()}
-					name="row-name-{column.getField()}"
-					id="row-name-{column.getField()}"
-					on:input={(e) => {
-						currentColumnInputs[column.getField()] = e.target.value;
-					}}
-				/>
+				{#if column.getField() !== 'id'}
+					<div class="text-xs">{column.getField()}</div>
+					<input
+						type="text"
+						class="input input-primary input-sm w-full"
+						placeholder={column.getField()}
+						name="row-name-{column.getField()}"
+						id="row-name-{column.getField()}"
+						on:input={(e) => {
+							currentColumnInputs[column.getField()] = e.target.value;
+						}}
+					/>
+				{/if}
 			{/each}
 		</div>
 
 		<div class="flex justify-center my-8">
 			<button
 				on:click|preventDefault={() => {
+					currentColumns.forEach((column) => {
+						if (column.getField() !== 'id') {
+							if (currentColumnInputs[column.getField()] === undefined) {
+								currentColumnInputs[column.getField()] = '-';
+							}
+						}
+					});
+
 					toggleDialog(`are-you-sure-row-${dataset}`);
 				}}
 				class="btn btn-primary btn-sm">Add Row</button
@@ -71,9 +81,11 @@
 		</p>
 		<ul class="list-disc list-inside">
 			{#each currentColumns as column}
-				<li>
-					{column.getField()}: {currentColumnInputs[column.getField()]}
-				</li>
+				{#if column.getField() !== 'id'}
+					<li>
+						{column.getField()}: {currentColumnInputs[column.getField()]}
+					</li>
+				{/if}
 			{/each}
 		</ul>
 
@@ -88,6 +100,8 @@
 					currentColumns.forEach((col) => {
 						newRowToAdd[col.getField()] = currentColumnInputs[col.getField()];
 					});
+					let existingRows = $currentTabulator?.getRows() ?? [];
+					newRowToAdd['id'] = existingRows.length;
 					console.log('Attempting to add new row', newRowToAdd);
 					let newTabulatorRow = await $currentTabulator?.addRow(newRowToAdd);
 					if (!newTabulatorRow) {
@@ -97,7 +111,7 @@
 					if (!$currentPRChanges) $currentPRChanges = initPRChanges();
 					$currentPRChanges.newRows.push({
 						dataset: dataset,
-						row: newTabulatorRow
+						row: newTabulatorRow.getData()
 					});
 					$currentNewTabulatorRows.push(newTabulatorRow);
 					$currentPRChanges.lastChange = 'row';

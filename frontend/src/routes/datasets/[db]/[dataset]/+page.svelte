@@ -3,21 +3,23 @@
 	import { page } from '$app/stores';
 	import DatasetNavbar from '$lib/components/DatasetNavbar.svelte';
 	import { NUMERIC_FIELDS } from '$lib/constants';
-	import { currentPRChanges } from '$lib/currentPRChanges';
+	import { currentPRChanges, initPRChanges } from '$lib/currentPRChanges';
 	import { currentTabulator } from '$lib/currentTabulator';
 	import AddNewColumnDialog from '$lib/dialogs/AddNewColumnDialog.svelte';
+	import AddNewLeaderboard from '$lib/dialogs/AddNewLeaderboard.svelte';
 	import AddNewRowDialog from '$lib/dialogs/AddNewRowDialog.svelte';
+	import AreYouSureDeleteLbDialog from '$lib/dialogs/AreYouSureDeleteLBDialog.svelte';
 	import ShowRowDialog from '$lib/dialogs/ShowRowDialog.svelte';
 	import { toggleDialog } from '$lib/dialogs/dialogUtils';
+	import { notifyError, notifySuccess } from '$lib/notifications';
 	import { currentNewTabulatorRows } from '$lib/states/currentNewTabulatorRows';
 	import { currentlySelectedRow } from '$lib/states/currentlySelectedRow';
 	import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import * as htmlToJson from '$lib/utils/htmlToJson';
+	import { extendColumnsByParsedTable, getBaseColumns } from '$lib/utils/utils';
 	import matter from 'gray-matter';
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
-	import Icon from 'svelte-icons-pack';
-	import BiSave from 'svelte-icons-pack/bi/BiSave';
 	import { fade } from 'svelte/transition';
 	import { type Formatter, TabulatorFull as Tabulator } from 'tabulator-tables';
 
@@ -26,7 +28,8 @@
 	let parsedInfo: any;
 	let parsedFooter: any;
 
-	let cellEdited = false;
+	let tableBuilding = false;
+	let tableBuilt = false;
 
 	function setTableFilter(event: Event) {
 		let filterString = (event.target as HTMLInputElement).value;
@@ -101,6 +104,135 @@
 		}
 	}
 
+	function setEventListeners() {
+		if (!$currentTabulator) {
+			notifyError('Tabulator not initialized', 'Failed to set event listeners');
+			return;
+		}
+		$currentTabulator.on('tableBuilding', () => {
+			tableBuilding = true;
+			tableBuilt = false;
+			console.log('Table building');
+		});
+		$currentTabulator.on('tableBuilt', async () => {
+			tableBuilt = true;
+			tableBuilding = false;
+			console.log('Table built');
+			if ($currentPRChanges) {
+				console.log('Applying changes from loaded PR');
+				if ($currentPRChanges.newColumns.length > 0) {
+					console.log('Applying columns');
+					$currentPRChanges.newColumns.forEach((column) => {
+						addNewColumnToTable(column);
+					});
+				}
+				if ($currentPRChanges.newRows.length > 0) {
+					console.log('Applying rows');
+					$currentPRChanges.newRows.forEach(async (row) => {
+						if (row.dataset != $page.params.db + '/' + $page.params.dataset) return;
+						console.log('Adding row', row.row);
+						let newRow = await $currentTabulator?.addRow(row.row);
+						if (newRow) {
+							let doesAlreadyExist = $currentNewTabulatorRows.find(
+								(newTabulatorRow) => newTabulatorRow.getIndex() == newRow?.getIndex()
+							);
+							if (doesAlreadyExist) return;
+							else $currentNewTabulatorRows.push(newRow);
+						}
+						$currentTabulator?.redraw(true);
+						$currentTabulator = $currentTabulator;
+					});
+				}
+				if ($currentPRChanges.changedRows && $currentPRChanges?.changedRows.length > 0) {
+					$currentPRChanges.changedRows.forEach((row) => {
+						if (row.dataset != $page.params.db + '/' + $page.params.dataset) return;
+						console.log('Applying changed cells');
+						$currentTabulator?.getRows().forEach(async (tableRow) => {
+							if (tableRow.getIndex() == row.row['id']) {
+								await tableRow.update(row.row);
+								row.row = tableRow.getData();
+							}
+						});
+						$currentTabulator?.redraw(true);
+						$currentTabulator = $currentTabulator;
+					});
+				}
+			}
+
+			$currentTabulator = $currentTabulator;
+		});
+		$currentTabulator.on('rowDblClick', (e, row) => {
+			$currentlySelectedRow = row;
+			toggleDialog('show-row-dialog');
+		});
+		$currentTabulator.on('cellEdited', function (cell) {
+			if (!$currentPRChanges) {
+				$currentPRChanges = initPRChanges();
+			}
+			if ($currentPRChanges.changedRows == null) {
+				$currentPRChanges.changedRows = [];
+			}
+			console.log("Adding row to 'changedRows'", cell.getRow());
+
+			// check if row is already in changedRows
+			let rowAlreadyInChanges = $currentPRChanges.changedRows.find((row) => {
+				return row.row['id'] == cell.getRow().getIndex();
+			});
+
+			if (rowAlreadyInChanges) {
+				console.log('Row already in changes, updating');
+				// update the row
+				rowAlreadyInChanges.row = cell.getRow().getData();
+				$currentPRChanges.lastChange = 'cell';
+
+				return;
+			} else {
+				// add the row
+				console.log('Row not in changes, adding');
+				$currentPRChanges.changedRows.push({
+					dataset: $page.params.db + '/' + $page.params.dataset,
+					row: cell.getRow().getData()
+				});
+				$currentPRChanges.lastChange = 'cell';
+			}
+		});
+		$currentTabulator.on('headerContext', async function (e, column) {
+			e.preventDefault();
+			let amongNewColumns = $currentPRChanges?.newColumns.find((col) => {
+				return col.column == column.getField();
+			});
+			if (!amongNewColumns) {
+				// column was not user created, therefore cannot be deleted
+				return;
+			}
+			let deleteButton = document.createElement('button');
+			deleteButton.id = 'delete-column-button';
+			deleteButton.innerHTML = 'Delete column';
+			deleteButton.classList.add('btn', 'btn-error', 'absolute');
+			deleteButton.style.top = e.clientY + window.scrollY + 'px';
+			deleteButton.style.left = e.clientX + window.scrollX + 'px';
+			deleteButton.onclick = async () => {
+				// delete column
+				if (!$currentPRChanges) {
+					notifyError("Couldn't delete column", 'No PR changes found');
+					deleteButton.remove();
+					return;
+				} else {
+					$currentTabulator?.hideColumn(column.getField());
+					await column.delete();
+					$currentPRChanges.lastChange = null;
+					$currentPRChanges.newColumns = $currentPRChanges.newColumns.filter((col) => {
+						return col.column != column.getField();
+					});
+
+					notifySuccess('Column deleted', 'Column deleted successfully');
+					deleteButton.remove();
+				}
+			};
+			document.body.appendChild(deleteButton);
+		});
+	}
+
 	let table: string | HTMLElement;
 	let filter: HTMLInputElement;
 
@@ -108,6 +240,10 @@
 	let fadeClass = '';
 
 	onMount(async () => {
+		document.body.onclick = (event: MouseEvent) => {
+			document.getElementById('delete-column-button')?.remove();
+		};
+		$currentTabulator = null;
 		const loadData = await load($page.params);
 		parsedTable = loadData.parsedTable;
 		prefaceData = loadData.prefaceData;
@@ -116,130 +252,66 @@
 
 		fadeClass = 'fade-in';
 		if (parsedTable) {
-			let columns = [
-				{
-					title: 'Model / System',
-					field: 'Model / System',
-					resizable: true,
-					editor: 'input'
-				},
-				{
-					title: 'Year',
-					field: 'Year',
-					resizable: true,
-					editor: 'input'
-				},
-				{
-					title: 'Precision',
-					field: 'Precision',
-					resizable: true,
-					editor: 'input'
-				},
-				{
-					title: 'Recall',
-					field: 'Recall',
-					resizable: true,
-					editor: 'input'
-				},
-				{
-					title: 'F1',
-					field: 'F1',
-					resizable: true,
-					editor: 'input'
-				},
-				{
-					title: 'Language',
-					field: 'Language',
-					resizable: true,
-					editor: 'input'
-				},
-				{
-					title: 'Reported by',
-					field: 'Reported by',
-					formatter: 'html',
-					resizable: true,
-					editor: 'input'
-				}
-			];
-			let objectKeys = Object.keys(parsedTable[0]);
-			columns = columns.filter((column) => objectKeys.includes(column.title));
-
-			for (let i = 0; i < objectKeys.length; i++) {
-				let currObjectKey = objectKeys[i];
-				if (columns.some((column) => column.title == currObjectKey)) continue;
-				if (NUMERIC_FIELDS.includes(currObjectKey)) {
-					columns.push({
-						title: currObjectKey,
-						field: currObjectKey,
-						sorter: function (
-							a: any,
-							b: any,
-							aRow: any,
-							bRow: any,
-							column: any,
-							dir: any,
-							sorterParams: any
-						) {
-							if (a == '-') a = 0;
-							if (b == '-') b = 0;
-							return a - b;
-						}
-					});
-				} else {
-					columns.push({
-						title: currObjectKey,
-						field: currObjectKey,
-						resizable: true,
-						editor: 'input'
-					});
-				}
+			let columns = getBaseColumns();
+			columns = extendColumnsByParsedTable(parsedTable, columns);
+			try {
+				$currentTabulator = new Tabulator(table, {
+					data: parsedTable,
+					layout: 'fitColumns', //fit columns to width of table (optional)
+					height: '500', //height of table (optional)
+					reactiveData: true, //enable data reactivity
+					columns: columns as any,
+					movableColumns: true
+				});
+				setEventListeners();
+			} catch (e) {
+				console.log("some error occured while loading table's data; likely got cancelled");
+				$currentTabulator = null;
 			}
-
-			$currentTabulator = new Tabulator(table, {
-				data: parsedTable,
-				layout: 'fitColumns', //fit columns to width of table (optional)
-				height: '500', //height of table (optional)
-				reactiveData: true, //enable data reactivity
-				columns: columns as any,
-				movableColumns: true
-			});
-
-			$currentTabulator.on('tableBuilt', async () => {
-				if ($currentPRChanges) {
-					console.log('Applying changes from loaded PR');
-					if ($currentPRChanges.newColumns.length > 0) {
-						console.log('Applying columns');
-						$currentPRChanges.newColumns.forEach((column) => {
-							addNewColumnToTable(column);
-						});
-					}
-					if ($currentPRChanges.newRows.length > 0) {
-						console.log('Applying rows');
-						$currentPRChanges.newRows.forEach(async (row) => {
-							console.log('Adding row', row);
-							let newRow = await $currentTabulator?.addRow(row.row);
-							if (newRow) {
-								row.row = newRow;
-								$currentNewTabulatorRows.push(row.row);
-							}
-						});
-					}
-					$currentTabulator?.redraw(true);
-					$currentTabulator = $currentTabulator;
-				}
-
-				$currentTabulator = $currentTabulator;
-			});
-
-			$currentTabulator.on('rowDblClick', (e, row) => {
-				$currentlySelectedRow = row;
-				toggleDialog('show-row-dialog');
-			});
-			$currentTabulator.on('cellEdited', function (cell) {
-				cellEdited = true;
-			});
 		} else {
-			console.log('No table found');
+			// check cookie for table data
+			if ($currentPRChanges) {
+				let changes = $currentPRChanges;
+				let doesLeaderboardExist = changes.newLeaderboards.find((lb) => {
+					return lb.dataset == $page.params.db + '/' + $page.params.dataset;
+				});
+				if (!doesLeaderboardExist) {
+					notifyError('No leaderboard found', 'There is no leaderboard for this dataset');
+					loading = false;
+					tableBuilding = false;
+					tableBuilt = false;
+					return;
+				} else {
+					console.log('Leaderboard found in pr changes cookie');
+				}
+				const htmlContent = marked.parse(
+					changes.newLeaderboards[changes.newLeaderboards.length - 1].data,
+					{ mangle: false, headerIds: false }
+				);
+				parsedTable = htmlToJson.parse(htmlContent).results[0];
+				if (parsedTable != null) {
+					console.log('Table found in pr changes cookie');
+					let columns = getBaseColumns();
+					columns = extendColumnsByParsedTable(parsedTable, columns);
+					try {
+						$currentTabulator = new Tabulator(table, {
+							data: parsedTable,
+							layout: 'fitColumns', //fit columns to width of table (optional)
+							height: '500', //height of table (optional)
+							reactiveData: true, //enable data reactivity
+							columns: columns as any,
+							movableColumns: true
+						});
+						setEventListeners();
+					} catch (e) {
+						console.log("some error occured while loading table's data; likely got cancelled");
+						$currentTabulator = null;
+					}
+				} else {
+					console.log('No table found');
+				}
+				loading = false;
+			} else console.log('No table found');
 		}
 		loading = false;
 	});
@@ -258,29 +330,76 @@
 				let lastColumn = changes.newColumns[changes.newColumns.length - 1];
 				console.log('Adding new column', lastColumn);
 				addNewColumnToTable(lastColumn);
+			} else if (changes.lastChange === 'leaderboard') {
+				const htmlContent = marked.parse(
+					changes.newLeaderboards[changes.newLeaderboards.length - 1].data,
+					{ mangle: false, headerIds: false }
+				);
+				parsedTable = htmlToJson.parse(htmlContent).results[0];
+				if (parsedTable) {
+					let columns = getBaseColumns();
+					columns = extendColumnsByParsedTable(parsedTable, columns);
+					try {
+						$currentTabulator = new Tabulator(table, {
+							data: parsedTable,
+							layout: 'fitColumns', //fit columns to width of table (optional)
+							height: '500', //height of table (optional)
+							reactiveData: true, //enable data reactivity
+							columns: columns as any,
+							movableColumns: true
+						});
+						setEventListeners();
+					} catch (e) {
+						console.log("some error occured while loading table's data; likely got cancelled");
+						$currentTabulator = null;
+					}
+				} else {
+					console.log('No table found - from currentPRChanges subscription');
+				}
+				loading = false;
 			}
 			// store this object as a cookie
 			if (browser && changes.lastChange !== null) {
 				console.log('Storing changes in cookie!');
+				console.log('new changes to store', changes);
 				let changesToStore: any = {};
 				changesToStore.newColumns = changes.newColumns;
 				changesToStore.newRows = changes.newRows.map((row) => {
 					return {
 						dataset: row.dataset,
-						row: JSON.stringify(row.row.getData())
+						row: row.row
+					};
+				});
+
+				changesToStore.changedRows = changes.changedRows.map((row) => {
+					return {
+						dataset: row.dataset,
+						row: row.row
+					};
+				});
+				changesToStore.newLeaderboards = changes.newLeaderboards.map((lb) => {
+					return {
+						dataset: lb.dataset,
+						data: lb.data
 					};
 				});
 				let cookie = {
 					name: `pr-changes`,
 					value: JSON.stringify(changesToStore)
 				};
-				console.log('Setting cookie');
-				document.cookie = `${cookie.name}=${cookie.value};path=/;SameSite=Lax`;
+				localStorage.setItem(cookie.name, cookie.value);
 			}
+			if (tableBuilt && !tableBuilding) $currentTabulator?.redraw(true);
+			$currentTabulator = $currentTabulator;
 		}
 	});
 
 	function addNewColumnToTable(newColumn: any) {
+		if (newColumn == undefined) {
+			console.log('no column provided, likely due to column deletion. Not adding column to table');
+			return;
+		}
+
 		if (newColumn.dataset != $page.params.db + '/' + $page.params.dataset) return;
 
 		let columnTitle = newColumn.column;
@@ -320,21 +439,6 @@
 
 		$currentTabulator?.redraw(true);
 	}
-
-	async function addNewRowToTable(newRow: any) {
-		if (newRow.dataset != $page.params.db + '/' + $page.params.dataset) return;
-		let row: any = {};
-		for (let i = 0; i < newRow.row.length; i++) {
-			let column = newRow.row[i];
-			row[column.key] = column.value;
-		}
-
-		let newTabulatorRow = await $currentTabulator?.addRow(row);
-		if (newTabulatorRow) {
-			$currentNewTabulatorRows.push(newTabulatorRow);
-		}
-		$currentTabulator?.redraw(true);
-	}
 </script>
 
 {#if loading}
@@ -366,25 +470,44 @@
 				No Leaderboard for this dataset yet
 
 				<div class="flex justify-center">
-					<button class="btn btn-accent btn-wide"> Submit a new leaderboard </button>
+					<button
+						on:click={() => {
+							toggleDialog(`add-new-leaderboard-${$page.params.db}/${$page.params.dataset}`);
+						}}
+						class="btn btn-accent btn-wide"
+					>
+						Submit a new leaderboard
+					</button>
 				</div>
 			{:else}
 				Leaderboard
 			{/if}
 		</div>
+		{#if $currentPRChanges && $currentPRChanges.newLeaderboards.find((lb) => lb.dataset === `${$page.params.db}/${$page.params.dataset}`) != undefined}
+			<div class="my-auto mx-4">
+				<button
+					on:click={() => {
+						toggleDialog('delete-new-leaderboard-' + $page.params.db + '/' + $page.params.dataset);
+					}}
+					class="btn btn-warning"
+				>
+					Delete
+				</button>
+			</div>
+		{/if}
 		<input
 			class:hidden={parsedTable == null}
 			type="text"
-			class="input input-primary input-sm w-60"
+			class="input input-primary input-sm w-60 my-auto"
 			placeholder="Filter 🔎"
 			name="filter"
 			id="filter"
 			bind:this={filter}
 			on:input={setTableFilter}
 		/>
-		{#if cellEdited}
-			<div transition:fade|local class="my-auto mx-4 cursor-pointer">
-				<Icon src={BiSave} color="purple" className="w-6 h-6" />
+		{#if $currentPRChanges && $currentPRChanges.newColumns.find((col) => col.dataset === `${$page.params.db}/${$page.params.dataset}`) != undefined}
+			<div class="mx-4 italic text-xs my-auto text-gray-400">
+				Right click on your new column to delete it
 			</div>
 		{/if}
 	</div>
@@ -420,6 +543,8 @@
 
 <AddNewColumnDialog dataset={$page.params.db + '/' + $page.params.dataset} />
 <AddNewRowDialog dataset={$page.params.db + '/' + $page.params.dataset} />
+<AddNewLeaderboard dataset={$page.params.db + '/' + $page.params.dataset} />
+<AreYouSureDeleteLbDialog dataset={$page.params.db + '/' + $page.params.dataset} />
 <ShowRowDialog />
 
 <style>
