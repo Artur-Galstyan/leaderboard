@@ -161,7 +161,9 @@ export async function loadSystems() {
 			description: parsed.data.description,
 			datasetUrl: parsed.data.datasetUrl
 		};
+		console.log(prefaceData);
 		const htmlContent = marked.parse(parsed.content, { mangle: false, headerIds: false });
+		console.log(htmlContent);
 		const parsedTable = htmlToJson.parse(htmlContent).results[0];
 
 		const githubUrlInfo = getRawGitHubContent(`Artur-Galstyan/leaderboard`, `^systems.md`);
