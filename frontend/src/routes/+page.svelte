@@ -136,6 +136,16 @@
 		{/each}
 	</div>
 {/if}
+<div class="flex justify-center">
+	<button
+		on:click={() => {
+			window.location.href = 'systems';
+		}}
+		class="btn btn-accent"
+	>
+		Systems
+	</button>
+</div>
 <div class="my-10" />
 {#if content}
 	<div class="prose text-justify mx-auto">

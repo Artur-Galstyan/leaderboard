@@ -21,6 +21,7 @@
 		extendColumnsByParsedTable,
 		getBaseColumns,
 		load,
+		loadSystems,
 		storeToLocalStorage
 	} from '$lib/utils/utils';
 	import matter from 'gray-matter';
@@ -203,7 +204,8 @@
 			document.getElementById('delete-column-button')?.remove();
 		};
 		$currentTabulator = null;
-		const loadData = await load($page.params);
+
+		const loadData = await loadSystems();
 		parsedTable = loadData.parsedTable;
 		prefaceData = loadData.prefaceData;
 		parsedInfo = loadData.parsedInfo;
@@ -381,21 +383,21 @@
 	</div>
 {:else}
 	<div transition:fade|local class="">
-		<DatasetNavbar datasetName={$page.params.db} />
+		<DatasetNavbar datasetName={null} />
 		{#if prefaceData && parsedTable}
 			<main class="prose text-justify mx-auto mt-16">
-				<h1>Dataset: {prefaceData.name}</h1>
-				<h5>Dataset URL: <a href={prefaceData.datasetUrl}>Link</a></h5>
+				<h1>Dataset: Systems</h1>
 			</main>
 		{/if}
 		<div class="divider w-[50%] mx-auto" />
 		<div class="prose text-justify mx-auto">
-			{#if parsedInfo}
+			{#if parsedInfo && !parsedInfo.includes('404')}
 				{@html parsedInfo}
+
+				<div class="divider w-[50%] mx-auto" />
 			{/if}
 		</div>
 	</div>
-	<div class="divider w-[50%] mx-auto" />
 	<div id="leaderboard-header" transition:fade|local class="flex justify-center my-4">
 		<div class="font-bold my-auto mx-20 text-2xl">
 			{#if parsedTable == null}

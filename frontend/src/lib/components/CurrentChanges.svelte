@@ -1,7 +1,10 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { currentPRChanges } from '$lib/currentPRChanges';
+	import { currentTabulator } from '$lib/currentTabulator';
 	import { toggleDialog } from '$lib/dialogs/dialogUtils';
 	import { notifyError } from '$lib/notifications';
+	import { lastParsedTable } from '$lib/states/lastParsedTable';
 	import { stringify } from 'gray-matter';
 	import { fade } from 'svelte/transition';
 	import Swal from 'sweetalert2';
@@ -62,6 +65,47 @@
 										}}
 										class="btn btn-info btn-xs">Expand</button
 									>
+									<button
+										on:click|preventDefault={() => {
+											if ($currentPRChanges) {
+												console.log('Deleting new row');
+												if (row.dataset === $page.params.db + '/' + $page.params.dataset) {
+													if ($currentTabulator !== null) {
+														let rowToRevert = $currentTabulator.getRow(row.row.id);
+														if (rowToRevert !== undefined) {
+															console.log('Found row to revert');
+
+															let originalRow = $lastParsedTable.find(
+																(r) => r.id === rowToRevert.getIndex()
+															);
+															if (originalRow !== undefined) {
+																console.log('Found original row', originalRow);
+																$currentTabulator?.updateData([originalRow]);
+																$currentTabulator.redraw(true);
+																$currentTabulator = $currentTabulator;
+															}
+														}
+													}
+												}
+												$currentPRChanges.newRows = $currentPRChanges.newRows.filter(
+													(r) => r !== row
+												);
+
+												$currentPRChanges.lastChange = 'row';
+												if (
+													$currentPRChanges.changedRows.length === 0 &&
+													$currentPRChanges.newRows.length === 0 &&
+													$currentPRChanges.newColumns.length === 0 &&
+													$currentPRChanges.newLeaderboards.length === 0
+												) {
+													toggleDialog('your-changes-dialog');
+												}
+											}
+										}}
+										class="btn btn-error btn-xs"
+									>
+										Undo
+									</button>
 								</li>
 							{/each}
 						</ul>
@@ -77,6 +121,35 @@
 									{column.dataset} - {column.column} - {column.numerical
 										? 'Numerical'
 										: 'Non-Numerical'}
+									<button
+										on:click|preventDefault={() => {
+											console.log('Deleting new column');
+											if (column.dataset === $page.params.db + '/' + $page.params.dataset) {
+												if ($currentTabulator !== null) {
+													$currentTabulator.deleteColumn(column.column);
+													$currentTabulator.redraw(true);
+													$currentTabulator = $currentTabulator;
+													if ($currentPRChanges !== null) {
+														$currentPRChanges.newColumns = $currentPRChanges?.newColumns.filter(
+															(c) => c !== column
+														);
+														$currentPRChanges.lastChange = 'column';
+													}
+												}
+											}
+											if (
+												$currentPRChanges?.changedRows.length === 0 &&
+												$currentPRChanges?.newRows.length === 0 &&
+												$currentPRChanges?.newColumns.length === 0 &&
+												$currentPRChanges?.newLeaderboards.length === 0
+											) {
+												toggleDialog('your-changes-dialog');
+											}
+										}}
+										class="btn btn-xs btn-error"
+									>
+										Undo
+									</button>
 								</li>
 							{/each}
 						</ul>
@@ -95,6 +168,46 @@
 										}}
 										class="btn btn-info btn-xs">Expand</button
 									>
+									<button
+										on:click|preventDefault={() => {
+											if ($currentPRChanges) {
+												console.log('Deleting changed row');
+												if (changedRow.dataset === $page.params.db + '/' + $page.params.dataset) {
+													if ($currentTabulator !== null) {
+														let rowToRevert = $currentTabulator.getRow(changedRow.row.id);
+														if (rowToRevert !== undefined) {
+															console.log('Found row to revert');
+
+															let originalRow = $lastParsedTable.find(
+																(r) => r.id === rowToRevert.getIndex()
+															);
+															if (originalRow !== undefined) {
+																console.log('Found original row', originalRow);
+																$currentTabulator?.updateData([originalRow]);
+																$currentTabulator.redraw(true);
+																$currentTabulator = $currentTabulator;
+															}
+														}
+													}
+												}
+												$currentPRChanges.changedRows = $currentPRChanges.changedRows.filter(
+													(r) => r !== changedRow
+												);
+												$currentPRChanges.lastChange = 'row';
+												if (
+													$currentPRChanges.changedRows.length === 0 &&
+													$currentPRChanges.newRows.length === 0 &&
+													$currentPRChanges.newColumns.length === 0 &&
+													$currentPRChanges.newLeaderboards.length === 0
+												) {
+													toggleDialog('your-changes-dialog');
+												}
+											}
+										}}
+										class="btn btn-error btn-xs"
+									>
+										Undo
+									</button>
 								</li>
 							{/each}
 						</ul>
@@ -124,6 +237,39 @@
 										}}
 										class="btn btn-xs btn-info">Raw Table Data</button
 									>
+									<button
+										on:click|preventDefault={() => {
+											if ($currentPRChanges) {
+												console.log('Deleting new leaderboard');
+												if (lb.dataset === $page.params.db + '/' + $page.params.dataset) {
+													$currentPRChanges.newLeaderboards =
+														$currentPRChanges.newLeaderboards.filter((leaderboard) => {
+															return leaderboard.dataset !== lb.dataset;
+														});
+													$currentPRChanges.lastChange = 'leaderboard deleted';
+													// reload the window
+													window.location.reload();
+												} else {
+													$currentPRChanges.newLeaderboards =
+														$currentPRChanges.newLeaderboards.filter((leaderboard) => {
+															return leaderboard.dataset !== lb.dataset;
+														});
+													$currentPRChanges.lastChange = 'leaderboard deleted';
+												}
+												if (
+													$currentPRChanges.changedRows.length === 0 &&
+													$currentPRChanges.newRows.length === 0 &&
+													$currentPRChanges.newColumns.length === 0 &&
+													$currentPRChanges.newLeaderboards.length === 0
+												) {
+													toggleDialog('your-changes-dialog');
+												}
+											}
+										}}
+										class="btn btn-xs btn-error"
+									>
+										Undo
+									</button>
 								</li>
 							{/each}
 						</ul>
