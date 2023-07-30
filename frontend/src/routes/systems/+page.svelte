@@ -206,6 +206,7 @@
 		$currentTabulator = null;
 
 		const loadData = await loadSystems();
+		console.log(loadData);
 		parsedTable = loadData.parsedTable;
 		prefaceData = loadData.prefaceData;
 		parsedInfo = loadData.parsedInfo;
@@ -234,7 +235,7 @@
 			if ($currentPRChanges) {
 				let changes = $currentPRChanges;
 				let doesLeaderboardExist = changes.newLeaderboards.find((lb) => {
-					return lb.dataset == $page.params.db + '/' + $page.params.dataset;
+					return lb.dataset == 'systems';
 				});
 				if (!doesLeaderboardExist) {
 					notifyError('No leaderboard found', 'There is no leaderboard for this dataset');
@@ -244,32 +245,32 @@
 					return;
 				} else {
 					console.log('Leaderboard found in pr changes cookie');
-				}
-				const htmlContent = marked.parse(
-					changes.newLeaderboards[changes.newLeaderboards.length - 1].data,
-					{ mangle: false, headerIds: false }
-				);
-				parsedTable = htmlToJson.parse(htmlContent).results[0];
-				if (parsedTable != null) {
-					console.log('Table found in pr changes cookie');
-					let columns = getBaseColumns();
-					columns = extendColumnsByParsedTable(parsedTable, columns);
-					try {
-						$currentTabulator = new Tabulator(table, {
-							data: parsedTable,
-							layout: 'fitColumns', //fit columns to width of table (optional)
-							height: '500', //height of table (optional)
-							reactiveData: true, //enable data reactivity
-							columns: columns as any,
-							movableColumns: true
-						});
-						setEventListeners();
-					} catch (e) {
-						console.log("some error occured while loading table's data; likely got cancelled");
-						$currentTabulator = null;
+					const htmlContent = marked.parse(
+						changes.newLeaderboards[changes.newLeaderboards.length - 1].data,
+						{ mangle: false, headerIds: false }
+					);
+					parsedTable = htmlToJson.parse(htmlContent).results[0];
+					if (parsedTable != null) {
+						console.log('Table found in pr changes cookie');
+						let columns = getBaseColumns();
+						columns = extendColumnsByParsedTable(parsedTable, columns);
+						try {
+							$currentTabulator = new Tabulator(table, {
+								data: parsedTable,
+								layout: 'fitColumns', //fit columns to width of table (optional)
+								height: '500', //height of table (optional)
+								reactiveData: true, //enable data reactivity
+								columns: columns as any,
+								movableColumns: true
+							});
+							setEventListeners();
+						} catch (e) {
+							console.log("some error occured while loading table's data; likely got cancelled");
+							$currentTabulator = null;
+						}
+					} else {
+						console.log('No table found');
 					}
-				} else {
-					console.log('No table found');
 				}
 				loading = false;
 			} else console.log('No table found');
@@ -393,7 +394,6 @@
 		<div class="prose text-justify mx-auto">
 			{#if parsedInfo && !parsedInfo.includes('404')}
 				{@html parsedInfo}
-
 				<div class="divider w-[50%] mx-auto" />
 			{/if}
 		</div>
