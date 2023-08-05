@@ -1,6 +1,5 @@
 export function getRawGitHubContent(repo: string, path: string, branch: string = 'main'): string {
 	const url = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
-
 	return url;
 }
 

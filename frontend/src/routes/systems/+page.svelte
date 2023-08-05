@@ -2,7 +2,6 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import DatasetNavbar from '$lib/components/DatasetNavbar.svelte';
-	import { NUMERIC_FIELDS } from '$lib/constants';
 	import { currentPRChanges, initPRChanges } from '$lib/currentPRChanges';
 	import { currentTabulator } from '$lib/currentTabulator';
 	import AddNewColumnDialog from '$lib/dialogs/AddNewColumnDialog.svelte';
@@ -15,7 +14,6 @@
 	import { currentNewTabulatorRows } from '$lib/states/currentNewTabulatorRows';
 	import { currentlySelectedRow } from '$lib/states/currentlySelectedRow';
 	import { lastParsedTable } from '$lib/states/lastParsedTable';
-	import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import * as htmlToJson from '$lib/utils/htmlToJson';
 	import {
 		extendColumnsByParsedTable,
@@ -24,12 +22,12 @@
 		loadSystems,
 		storeToLocalStorage
 	} from '$lib/utils/utils';
-	import matter from 'gray-matter';
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { type Formatter, TabulatorFull as Tabulator } from 'tabulator-tables';
+	import * as pkg from 'tabulator-tables';
 
+	const { Tabulator } = pkg;
 	let parsedTable: any;
 	let prefaceData: any;
 	let parsedInfo: any;

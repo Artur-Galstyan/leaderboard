@@ -15,14 +15,17 @@
 		<div class="flex justify-between">
 			<button
 				on:click={() => {
+					console.log('Deleting leaderboard');
 					if (!$currentPRChanges) {
 						notifyError('No current PR changes', 'Please refresh the page and try again');
 						return;
 					}
-					$currentPRChanges.newLeaderboards = $currentPRChanges.newLeaderboards.filter((lb) => {
+					let copy = structuredClone($currentPRChanges);
+					copy.newLeaderboards = $currentPRChanges.newLeaderboards.filter((lb) => {
 						return lb.dataset !== dataset;
 					});
-					$currentPRChanges.lastChange = 'leaderboard deleted';
+					copy.lastChange = 'leaderboard deleted';
+					currentPRChanges.set(copy);
 					// reload the window
 					window.location.reload();
 				}}

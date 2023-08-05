@@ -4,6 +4,16 @@ import { marked } from 'marked';
 import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 
 import * as htmlToJson from '$lib/utils/htmlToJson';
+import { get } from 'svelte/store';
+import { currentTabulator } from '$lib/currentTabulator';
+import { notifyError, notifySuccess } from '$lib/notifications';
+import { tableBuilding } from '$lib/states/tableBuilding';
+import { tableBuilt } from '$lib/states/tableBuilt';
+import { lastParsedTable } from '$lib/states/lastParsedTable';
+import { currentPRChanges, initPRChanges } from '$lib/currentPRChanges';
+import { currentNewTabulatorRows } from '$lib/states/currentNewTabulatorRows';
+import { currentlySelectedRow } from '$lib/states/currentlySelectedRow';
+import { toggleDialog } from '$lib/dialogs/dialogUtils';
 
 export function generateRandomHash() {
 	return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -151,58 +161,19 @@ export function storeToLocalStorage(changes: any) {
 }
 
 export async function loadSystems() {
-	try {
-		const githubUrl = getRawGitHubContent(`Artur-Galstyan/leaderboard`, `systems.md`);
-		const githubUrlReq = await fetch(githubUrl);
-		const githubMarkdownText = await githubUrlReq.text();
-		const parsed = matter(githubMarkdownText);
-		const prefaceData = {
-			name: parsed.data.name,
-			description: parsed.data.description,
-			datasetUrl: parsed.data.datasetUrl
-		};
-		console.log(prefaceData);
-		const htmlContent = marked.parse(parsed.content, { mangle: false, headerIds: false });
-		console.log(htmlContent);
-		const parsedTable = htmlToJson.parse(htmlContent).results[0];
-
-		const githubUrlInfo = getRawGitHubContent(`Artur-Galstyan/leaderboard`, `^systems.md`);
-		const githubUrlInfoReq = await fetch(githubUrlInfo);
-		const githubMarkdownTextInfo = await githubUrlInfoReq.text();
-		const parsedInfo = matter(githubMarkdownTextInfo);
-		const htmlContentInfo = marked.parse(parsedInfo.content, { mangle: false, headerIds: false });
-
-		let htmlFooter = undefined;
-		try {
-			const githubUrlFooter = getRawGitHubContent(`Artur-Galstyan/leaderboard`, `$systems.md`);
-			const githubUrlFooterReq = await fetch(githubUrlFooter);
-			if (githubUrlFooterReq.status == 404) {
-				throw Error('Not found');
-			}
-			const githubMarkdownFooter = await githubUrlFooterReq.text();
-			const parsedFooter = matter(githubMarkdownFooter);
-			htmlFooter = marked.parse(parsedFooter.content, { mangle: false, headerIds: false });
-		} catch (e) {
-			console.log("No footer found, that's ok");
-		}
-
-		return {
-			parsedTable: structuredClone(parsedTable),
-			prefaceData: prefaceData,
-			parsedInfo: htmlContentInfo,
-			parsedFooter: htmlFooter
-		};
-	} catch (e) {
-		throw new Error(`Failed to load dataset systems.md, error ${e}`);
-	}
+	return loadFromGithub(null, null, true);
 }
 
 export async function load(params: any) {
+	return loadFromGithub(params.db, params.dataset);
+}
+
+async function loadFromGithub(db: string | null, dataset: string | null, systems = false) {
+	let mainPath = systems ? `systems_updated.md` : `${db}/${dataset}.md`;
+	let headerPath = systems ? `^systems_updated.md` : `${db}/^${dataset}.md`;
+	let footerPath = systems ? `$systems_updated.md` : `${db}/$${dataset}.md`;
 	try {
-		const githubUrl = getRawGitHubContent(
-			`Artur-Galstyan/leaderboard`,
-			`${params.db}/${params.dataset}.md`
-		);
+		const githubUrl = getRawGitHubContent(`Artur-Galstyan/leaderboard`, mainPath);
 		const githubUrlReq = await fetch(githubUrl);
 		const githubMarkdownText = await githubUrlReq.text();
 		const parsed = matter(githubMarkdownText);
@@ -214,10 +185,7 @@ export async function load(params: any) {
 		const htmlContent = marked.parse(parsed.content, { mangle: false, headerIds: false });
 		const parsedTable = htmlToJson.parse(htmlContent).results[0];
 
-		const githubUrlInfo = getRawGitHubContent(
-			`Artur-Galstyan/leaderboard`,
-			`${params.db}/^${params.dataset}.md`
-		);
+		const githubUrlInfo = getRawGitHubContent(`Artur-Galstyan/leaderboard`, headerPath);
 		const githubUrlInfoReq = await fetch(githubUrlInfo);
 		const githubMarkdownTextInfo = await githubUrlInfoReq.text();
 		const parsedInfo = matter(githubMarkdownTextInfo);
@@ -225,10 +193,7 @@ export async function load(params: any) {
 
 		let htmlFooter = undefined;
 		try {
-			const githubUrlFooter = getRawGitHubContent(
-				`Artur-Galstyan/leaderboard`,
-				`${params.db}/$${params.dataset}.md`
-			);
+			const githubUrlFooter = getRawGitHubContent(`Artur-Galstyan/leaderboard`, footerPath);
 			const githubUrlFooterReq = await fetch(githubUrlFooter);
 			if (githubUrlFooterReq.status == 404) {
 				throw Error('Not found');
@@ -247,6 +212,220 @@ export async function load(params: any) {
 			parsedFooter: htmlFooter
 		};
 	} catch (e) {
-		throw new Error(`Failed to load dataset ${params.dataset} from ${params.db}, error ${e}`);
+		throw new Error(`Failed to load dataset ${dataset} from ${db}, error ${e}`);
 	}
+}
+
+export function setTableFilter(event: Event) {
+	let currentTab = get(currentTabulator);
+	let filterString = (event.target as HTMLInputElement).value;
+	let fields = currentTab?.getColumns().map((column) => column.getField());
+	if (filterString && currentTab) {
+		currentTab.setFilter([
+			[],
+			[
+				fields?.map((field) => {
+					return { field: field, type: 'like', value: filterString };
+				}) as any
+			]
+		]);
+	} else if (currentTab) {
+		currentTab.clearFilter(true);
+	} else {
+		console.error('Tabulator not initialized');
+	}
+
+	currentTabulator.set(currentTab);
+}
+
+export function setEventListeners(page: any) {
+	let currentTab = get(currentTabulator);
+	if (!currentTab) {
+		notifyError('Tabulator not initialized', 'Failed to set event listeners');
+		return;
+	}
+	currentTab.on('tableBuilding', () => {
+		tableBuilding.set(true);
+		tableBuilt.set(false);
+		console.log('Table building');
+	});
+	currentTab.on('tableBuilt', async () => {
+		tableBuilding.set(false);
+		tableBuilt.set(true);
+
+		if (currentTab) {
+			console.log('Table loaded, setting lastParsedTable', currentTab.getRows());
+			lastParsedTable.set(
+				currentTab.getRows().map((row) => JSON.parse(JSON.stringify(row.getData())))
+			);
+		}
+		console.log('Table built');
+		let currPRChanges = get(currentPRChanges);
+		if (currPRChanges) {
+			console.log('Applying changes from loaded PR');
+			if (currPRChanges.newColumns.length > 0) {
+				console.log('Applying columns');
+				currPRChanges.newColumns.forEach((column) => {
+					addNewColumnToTable(column, page);
+				});
+			}
+			if (currPRChanges.newRows.length > 0) {
+				console.log('Applying rows');
+				currPRChanges.newRows.forEach(async (row) => {
+					if (row.dataset != page.params.db + '/' + page.params.dataset) return;
+					console.log('Adding row', row.row);
+					let newRow = await currentTab?.addRow(row.row);
+					if (newRow) {
+						let currNewTabulatorRows = get(currentNewTabulatorRows);
+						let doesAlreadyExist = currNewTabulatorRows.find(
+							(newTabulatorRow) => newTabulatorRow.getIndex() == newRow?.getIndex()
+						);
+						if (doesAlreadyExist) return;
+						else currNewTabulatorRows.push(newRow);
+						currentNewTabulatorRows.set(currNewTabulatorRows);
+					}
+					currentTab?.redraw(true);
+					currentTabulator.set(currentTab);
+				});
+			}
+			if (currPRChanges.changedRows && currPRChanges?.changedRows.length > 0) {
+				currPRChanges.changedRows.forEach((row) => {
+					if (row.dataset != page.params.db + '/' + page.params.dataset) return;
+					console.log('Applying changed cells');
+					currentTab?.getRows().forEach(async (tableRow) => {
+						if (tableRow.getIndex() == row.row['id']) {
+							await tableRow.update(row.row);
+							row.row = tableRow.getData();
+						}
+					});
+					currentTab?.redraw(true);
+					currentTabulator.set(currentTab);
+				});
+			}
+		}
+
+		currentTabulator.set(currentTab);
+	});
+	currentTab.on('rowDblClick', (e, row) => {
+		currentlySelectedRow.set(row);
+		toggleDialog('show-row-dialog');
+	});
+	currentTab.on('cellEdited', function (cell) {
+		let currPRChanges = get(currentPRChanges);
+		if (!currPRChanges) {
+			currentPRChanges.set(initPRChanges());
+		}
+		if (currPRChanges && currPRChanges.changedRows == null) {
+			currPRChanges.changedRows = [];
+		}
+		console.log("Adding row to 'changedRows'", cell.getRow());
+
+		// check if row is already in changedRows
+		let rowAlreadyInChanges = currPRChanges?.changedRows.find((row) => {
+			return row.row['id'] == cell.getRow().getIndex();
+		});
+
+		if (currPRChanges && rowAlreadyInChanges) {
+			console.log('Row already in changes, updating');
+			// update the row
+			rowAlreadyInChanges.row = cell.getRow().getData();
+			currPRChanges.lastChange = 'cell';
+
+			return;
+		} else if (currPRChanges) {
+			// add the row
+			console.log('Row not in changes, adding');
+			currPRChanges?.changedRows.push({
+				dataset: page.params.db + '/' + page.params.dataset,
+				row: cell.getRow().getData()
+			});
+			currPRChanges.lastChange = 'cell';
+		}
+		currentPRChanges.set(currPRChanges);
+	});
+	currentTab.on('headerContext', async function (e, column) {
+		e.preventDefault();
+		let currPRChanges = get(currentPRChanges);
+		let amongNewColumns = currPRChanges?.newColumns.find((col) => {
+			return col.column == column.getField();
+		});
+		if (!amongNewColumns) {
+			// column was not user created, therefore cannot be deleted
+			return;
+		}
+		let deleteButton = document.createElement('button');
+		deleteButton.id = 'delete-column-button';
+		deleteButton.innerHTML = 'Delete column';
+		deleteButton.classList.add('btn', 'btn-error', 'absolute');
+		deleteButton.style.top = e.clientY + window.scrollY + 'px';
+		deleteButton.style.left = e.clientX + window.scrollX + 'px';
+		deleteButton.onclick = async () => {
+			// delete column
+			if (!currPRChanges) {
+				notifyError("Couldn't delete column", 'No PR changes found');
+				deleteButton.remove();
+				return;
+			} else {
+				currentTab?.hideColumn(column.getField());
+				await column.delete();
+				currPRChanges.lastChange = null;
+				currPRChanges.newColumns = currPRChanges.newColumns.filter((col) => {
+					return col.column != column.getField();
+				});
+
+				notifySuccess('Column deleted', 'Column deleted successfully');
+				deleteButton.remove();
+				currentPRChanges.set(currPRChanges);
+			}
+		};
+		document.body.appendChild(deleteButton);
+	});
+}
+
+export function addNewColumnToTable(newColumn: any, page: any) {
+	if (newColumn == undefined) {
+		console.log('no column provided, likely due to column deletion. Not adding column to table');
+		return;
+	}
+
+	if (newColumn.dataset != page.params.db + '/' + page.params.dataset) return;
+
+	let columnTitle = newColumn.column;
+	let columnType = newColumn.numerical;
+
+	let column = {
+		title: columnTitle,
+		field: columnTitle,
+		resizable: true,
+		editor: 'input'
+	};
+
+	if (columnType) {
+		column['sorter'] = function (
+			a: any,
+			b: any,
+			aRow: any,
+			bRow: any,
+			column: any,
+			dir: any,
+			sorterParams: any
+		) {
+			if (a == '-') a = 0;
+			if (b == '-') b = 0;
+			return a - b;
+		};
+	}
+	let currTab = get(currentTabulator);
+	currTab?.addColumn(column);
+
+	// add default values to all rows for the new column
+	let rows = currTab?.getRows();
+	if (!rows) return;
+	for (let i = 0; i < rows.length; i++) {
+		let row = rows[i];
+		row.update({ [columnTitle]: '-' });
+	}
+
+	currTab?.redraw(true);
+	currentTabulator.set(currTab);
 }
