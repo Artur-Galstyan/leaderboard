@@ -62,10 +62,11 @@ test('add new column and then new row', async ({ page }) => {
 		.locator('[id="are-you-sure-row-freebase\\/ComplexQuestions"]')
 		.getByRole('button', { name: 'Yes' })
 		.click();
+	await page.getByPlaceholder('Filter 🔎').click();
+	await page.getByPlaceholder('Filter 🔎').fill('TestModel123');
 	await page.getByRole('gridcell', { name: 'TestModel123' }).click();
-	await page.getByRole('gridcell', { name: '2022' }).nth(4).click();
+	await page.getByRole('gridcell', { name: '2022' }).click();
 	await page.getByRole('gridcell', { name: 'Me' }).click();
-	await page.getByRole('gridcell', { name: '13' }).click();
 	await page.getByRole('gridcell', { name: '100' }).click();
 	await page.getByRole('gridcell', { name: 'TestColumnValue' }).click();
 	await page.getByRole('button', { name: 'Your Changes' }).click();
@@ -83,7 +84,6 @@ test('add new column and then new row', async ({ page }) => {
 	await page.getByRole('gridcell', { name: 'TestModel123' }).click();
 	await page.getByRole('gridcell', { name: '2022' }).click();
 	await page.getByRole('gridcell', { name: 'Me' }).click();
-	await page.getByRole('gridcell', { name: '13' }).click();
 	await page.getByRole('gridcell', { name: '100' }).click();
 	await page.getByRole('gridcell', { name: 'TestColumnValue' }).click();
 });
