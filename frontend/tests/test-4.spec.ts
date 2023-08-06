@@ -33,7 +33,6 @@ test('add new row', async ({ page }) => {
 	await page.locator('body').hover();
 	await page.getByRole('button', { name: 'Your Changes' }).click();
 	await page.getByText('freebase/ComplexQuestions - Expand Undo').click();
-	await page.getByRole('heading', { name: 'Row', exact: true }).click();
 	await expect(page.getByLabel('Row').getByText('TestModel123')).toBeVisible();
 	await expect(page.getByLabel('Row').getByText('2022')).toBeVisible();
 	await expect(page.getByLabel('Row').getByText('Me')).toBeVisible();
