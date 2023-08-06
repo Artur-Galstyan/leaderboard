@@ -72,9 +72,33 @@ export function getBaseColumns() {
 			visible: true
 		},
 		{
+			title: 'Reported in the paper',
+			field: 'Reported in the paper',
+			formatter: 'html',
+			resizable: true,
+			editor: 'input',
+			visible: true
+		},
+		{
+			title: 'Link to Demo/Repo/API',
+			field: 'Link to Demo/Repo/API',
+			formatter: 'html',
+			resizable: true,
+			editor: 'input',
+			visible: true
+		},
+		{
+			title: 'Original paper',
+			field: 'Original paper',
+			formatter: 'html',
+			resizable: true,
+			editor: 'input',
+			visible: true
+		},
+		{
 			title: 'id',
 			field: 'id',
-			visible: true,
+			visible: false,
 			resizable: false,
 			editor: 'input'
 		}
