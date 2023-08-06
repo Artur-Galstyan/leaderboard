@@ -71,19 +71,12 @@
 												console.log('Deleting new row');
 												if (row.dataset === $page.params.db + '/' + $page.params.dataset) {
 													if ($currentTabulator !== null) {
-														let rowToRevert = $currentTabulator.getRow(row.row.id);
-														if (rowToRevert !== undefined) {
-															console.log('Found row to revert');
-
-															let originalRow = $lastParsedTable.find(
-																(r) => r.id === rowToRevert.getIndex()
-															);
-															if (originalRow !== undefined) {
-																console.log('Found original row', originalRow);
-																$currentTabulator?.updateData([originalRow]);
-																$currentTabulator.redraw(true);
-																$currentTabulator = $currentTabulator;
-															}
+														let rowToDelete = $currentTabulator.getRow(row.row.id);
+														if (rowToDelete !== undefined) {
+															console.log('Found row to delete', rowToDelete);
+															$currentTabulator.deleteRow(rowToDelete);
+															$currentTabulator.redraw(true);
+															$currentTabulator = $currentTabulator;
 														}
 													}
 												}
