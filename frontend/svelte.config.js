@@ -36,6 +36,9 @@ const config = {
 		adapter: adapter({}),
 		prerender: {
 			entries: await getEntriesFromTxtFile('./static/entries.txt')
+		},
+		paths: {
+			base: '/leaderboard'
 		}
 	}
 };
