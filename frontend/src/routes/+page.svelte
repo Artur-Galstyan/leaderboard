@@ -91,7 +91,7 @@
 </script>
 
 <div class="flex justify-center mt-12">
-	<img src="/logo-min.png" alt="The wisest koala" class="w-64 my-auto" />
+	<img src="/leaderboard/logo-min.png" alt="The wisest koala" class="w-64 my-auto" />
 </div>
 <div class="text-center mt-4 mb-12 text-5xl">KGQA Leaderboard</div>
 

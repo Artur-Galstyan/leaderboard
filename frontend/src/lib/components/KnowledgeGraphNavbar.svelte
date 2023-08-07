@@ -5,6 +5,6 @@
 	<div class="text-center flex-1" />
 
 	<div class="">
-		🏠 <a href="/">Home</a>
+		🏠 <a href="/leaderboard">Home</a>
 	</div>
 </nav>

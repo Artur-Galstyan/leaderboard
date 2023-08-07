@@ -9,6 +9,6 @@
 		{/if}
 	</div>
 	<div class="">
-		🏠 <a href="/">Home</a>
+		🏠 <a href="/leaderboard">Home</a>
 	</div>
 </nav>
