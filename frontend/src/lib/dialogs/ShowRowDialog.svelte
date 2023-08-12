@@ -12,17 +12,19 @@
 </script>
 
 <dialog id="show-row-dialog" class="modal">
-	<form method="dialog" class="modal-box">
+	<form method="dialog" class="modal-box w-11/12 max-w-5xl">
 		<div class="text-lg font-bold my-2">Details</div>
 		<div class="grid grid-cols-2">
 			{#if $currentlySelectedRow}
 				{#each $currentlySelectedRow.getCells() as cell}
-					<div class="">
-						{cell.getColumn().getField()}
-					</div>
-					<div>
-						{@html cell.getValue()}
-					</div>
+					{#if cell.getColumn().getField() !== 'id'}
+						<div class="">
+							{cell.getColumn().getField()}
+						</div>
+						<div>
+							{@html cell.getValue()}
+						</div>
+					{/if}
 				{/each}
 			{/if}
 		</div>

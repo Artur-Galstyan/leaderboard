@@ -69,7 +69,10 @@
 										on:click|preventDefault={() => {
 											if ($currentPRChanges) {
 												console.log('Deleting new row');
-												if (row.dataset === $page.params.db + '/' + $page.params.dataset) {
+												if (
+													row.dataset === $page.params.db + '/' + $page.params.dataset ||
+													($page.route.id === '/systems' && row.dataset === 'systems')
+												) {
 													if ($currentTabulator !== null) {
 														let rowToDelete = $currentTabulator.getRow(row.row.id);
 														if (rowToDelete !== undefined) {
@@ -117,7 +120,10 @@
 									<button
 										on:click|preventDefault={() => {
 											console.log('Deleting new column');
-											if (column.dataset === $page.params.db + '/' + $page.params.dataset) {
+											if (
+												column.dataset === $page.params.db + '/' + $page.params.dataset ||
+												($page.route.id === '/systems' && column.dataset === 'systems')
+											) {
 												if ($currentTabulator !== null) {
 													$currentTabulator.deleteColumn(column.column);
 													$currentTabulator.redraw(true);
@@ -165,7 +171,10 @@
 										on:click|preventDefault={() => {
 											if ($currentPRChanges) {
 												console.log('Deleting changed row');
-												if (changedRow.dataset === $page.params.db + '/' + $page.params.dataset) {
+												if (
+													changedRow.dataset === $page.params.db + '/' + $page.params.dataset ||
+													($page.route.id === '/systems' && changedRow.dataset === 'systems')
+												) {
 													if ($currentTabulator !== null) {
 														let rowToRevert = $currentTabulator.getRow(changedRow.row.id);
 														if (rowToRevert !== undefined) {

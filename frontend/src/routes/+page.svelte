@@ -134,7 +134,7 @@
 	<div transition:fade|local class="flex justify-center space-x-4">
 		{#each prefaceData.knowledgeGraphs as kg}
 			{#if kg}
-				<a href={'datasets/' + kg.toLowerCase()}>{kg}</a>
+				<a href={'/leaderboard/datasets/' + kg.toLowerCase()}>{kg}</a>
 			{/if}
 		{/each}
 	</div>

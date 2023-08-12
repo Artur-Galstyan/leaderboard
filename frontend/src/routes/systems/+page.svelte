@@ -47,7 +47,10 @@
 
 	onMount(async () => {
 		document.body.onclick = (event: MouseEvent) => {
-			document.getElementById('delete-column-button')?.remove();
+			let els = document.getElementsByClassName('delete-column-button');
+			for (let i = 0; i < els.length; i++) {
+				els[i].remove();
+			}
 		};
 		$currentTabulator = null;
 
@@ -124,11 +127,11 @@
 	});
 
 	function openNewColumnDialog() {
-		toggleDialog(`add-new-column-${$page.params.db}/${$page.params.dataset}`);
+		toggleDialog(`add-new-column-systems`);
 	}
 
 	function openNewRowDialog() {
-		toggleDialog(`add-new-row-${$page.params.db}/${$page.params.dataset}`);
+		toggleDialog(`add-new-row-systems`);
 	}
 
 	currentPRChanges.subscribe((changes) => {
@@ -228,18 +231,21 @@
 				</button>
 			</div>
 		{/if}
-		<input
-			class:hidden={parsedTable == null}
-			type="text"
-			class="input input-primary input-sm w-60 my-auto"
-			placeholder="Filter 🔎"
-			name="filter"
-			id="filter"
-			bind:this={filter}
-			on:input={(e) => {
-				setTableFilter(e);
-			}}
-		/>
+		<div class="flex space-x-4">
+			<input
+				class:hidden={parsedTable == null}
+				type="text"
+				class="input input-primary input-sm w-60 my-auto"
+				placeholder="Filter 🔎"
+				name="filter"
+				id="filter"
+				bind:this={filter}
+				on:input={(e) => {
+					setTableFilter(e);
+				}}
+			/>
+			<div class="text-xs my-auto text-gray-600">Double click on a row to see details</div>
+		</div>
 		{#if $currentPRChanges && $currentPRChanges.newColumns.find((col) => col.dataset === `${$page.params.db}/${$page.params.dataset}`) != undefined}
 			<div class="mx-4 italic text-xs my-auto text-gray-400">
 				Right click on your new column to delete it
@@ -276,10 +282,10 @@
 	/>
 </svelte:head>
 
-<AddNewColumnDialog dataset={$page.params.db + '/' + $page.params.dataset} />
-<AddNewRowDialog dataset={$page.params.db + '/' + $page.params.dataset} />
-<AddNewLeaderboard dataset={$page.params.db + '/' + $page.params.dataset} />
-<AreYouSureDeleteLbDialog dataset={$page.params.db + '/' + $page.params.dataset} />
+<AddNewColumnDialog dataset={'systems'} />
+<AddNewRowDialog dataset={'systems'} />
+<AddNewLeaderboard dataset={'systems'} />
+<AreYouSureDeleteLbDialog dataset={'systems'} />
 <ShowRowDialog />
 
 <style>

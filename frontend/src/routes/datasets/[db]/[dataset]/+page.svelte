@@ -26,8 +26,8 @@
 	import { marked } from 'marked';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import * as pkg from "tabulator-tables"
-	
+	import * as pkg from 'tabulator-tables';
+
 	const Tabulator = pkg.TabulatorFull;
 
 	let parsedTable: any;
@@ -43,7 +43,10 @@
 
 	onMount(async () => {
 		document.body.onclick = (event: MouseEvent) => {
-			document.getElementById('delete-column-button')?.remove();
+			let els = document.getElementsByClassName('delete-column-button');
+			for (let i = 0; i < els.length; i++) {
+				els[i].remove();
+			}
 		};
 		$currentTabulator = null;
 		const loadData = await load($page.params);

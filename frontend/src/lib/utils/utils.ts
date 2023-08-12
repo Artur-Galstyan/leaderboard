@@ -359,8 +359,14 @@ export function setEventListeners(page: any) {
 		} else if (currPRChanges) {
 			// add the row
 			console.log('Row not in changes, adding');
+			let dataset = page.params.db + '/' + page.params.dataset;
+			if (page.params.db === undefined && page.params.dataset === undefined) {
+				if (page.route.id === '/systems') {
+					dataset = 'systems';
+				}
+			}
 			currPRChanges?.changedRows.push({
-				dataset: page.params.db + '/' + page.params.dataset,
+				dataset: dataset,
 				row: cell.getRow().getData()
 			});
 			currPRChanges.lastChange = 'cell';
@@ -377,8 +383,13 @@ export function setEventListeners(page: any) {
 			// column was not user created, therefore cannot be deleted
 			return;
 		}
+		let els = document.getElementsByClassName('delete-column-button');
+		for (let i = 0; i < els.length; i++) {
+			els[i].remove();
+		}
+
 		let deleteButton = document.createElement('button');
-		deleteButton.id = 'delete-column-button';
+		deleteButton.classList.add('delete-column-button');
 		deleteButton.innerHTML = 'Delete column';
 		deleteButton.classList.add('btn', 'btn-error', 'absolute');
 		deleteButton.style.top = e.clientY + window.scrollY + 'px';
@@ -412,7 +423,9 @@ export function addNewColumnToTable(newColumn: any, page: any) {
 		return;
 	}
 
-	if (newColumn.dataset != page.params.db + '/' + page.params.dataset) return;
+	if (page.route.id == '/systems') {
+		if (newColumn.dataset != 'systems') return;
+	} else if (newColumn.dataset != page.params.db + '/' + page.params.dataset) return;
 
 	let columnTitle = newColumn.column;
 	let columnType = newColumn.numerical;
