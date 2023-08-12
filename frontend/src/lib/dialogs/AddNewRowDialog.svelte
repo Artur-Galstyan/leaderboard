@@ -114,7 +114,7 @@
 						row: newTabulatorRow.getData()
 					});
 					$currentNewTabulatorRows.push(newTabulatorRow);
-					$currentPRChanges.lastChange = 'row';
+					$currentPRChanges.lastChange = 'row added';
 					notifySuccess(
 						'New row added successfully!',
 						`Added row ${newRowName} to dataset ${dataset}`

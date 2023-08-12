@@ -30,7 +30,7 @@ test('add new column', async ({ page }) => {
 	await page.getByText('freebase/ComplexQuestions - Test - Numerical Undo').click();
 	await page.getByRole('button', { name: 'Your Changes' }).press('Escape');
 	await page.getByRole('button', { name: 'Your Changes' }).press('Escape');
-	await page.goto('/datasets/freebase/ComplexQuestions');
+	await page.goto('/leaderboard/datasets/freebase/ComplexQuestions');
 	await page.locator('#leaderboard-wrapper').getByText('Test').click();
 	await page.locator('body').click();
 });

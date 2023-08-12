@@ -132,11 +132,7 @@
 	currentPRChanges.subscribe((changes) => {
 		if (changes) {
 			console.log('Changes detected', changes);
-			if (changes.lastChange === 'column') {
-				let lastColumn = changes.newColumns[changes.newColumns.length - 1];
-				console.log('Adding new column', lastColumn);
-				addNewColumnToTable(lastColumn, $page);
-			} else if (changes.lastChange === 'leaderboard') {
+			if (changes.lastChange === 'leaderboard added') {
 				const htmlContent = marked.parse(
 					changes.newLeaderboards[changes.newLeaderboards.length - 1].data,
 					{ mangle: false, headerIds: false }
@@ -165,7 +161,7 @@
 				loading = false;
 			}
 			// store this object as a cookie
-			if (browser && changes.lastChange !== null) {
+			if (browser) {
 				storeToLocalStorage(changes);
 			}
 			if ($tableBuilt && !$tableBuilding) $currentTabulator?.redraw(true);

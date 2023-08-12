@@ -1,18 +1,20 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { GITHUB_BOT_URL } from '$lib/constants';
 	import { currentPRChanges } from '$lib/currentPRChanges';
 	import { currentTabulator } from '$lib/currentTabulator';
 	import { toggleDialog } from '$lib/dialogs/dialogUtils';
-	import { notifyError } from '$lib/notifications';
+	import { notifyError, notifySuccess } from '$lib/notifications';
 	import { lastParsedTable } from '$lib/states/lastParsedTable';
 	import { stringify } from 'gray-matter';
+	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import Swal from 'sweetalert2';
 
 	let dialogElement: HTMLDialogElement;
 
 	let serializedPR: any;
-
+	let previouslySubmittedIssues: string[] = [];
 	async function showRow(row: any) {
 		let tempRow = JSON.parse(JSON.stringify(row));
 		let keys = Object.keys(tempRow);
@@ -34,10 +36,14 @@
 			position: 'top'
 		});
 	}
+
+	onMount(() => {
+		previouslySubmittedIssues = JSON.parse(localStorage.getItem('pr-issues') ?? '[]') || [];
+	});
 </script>
 
 <dialog bind:this={dialogElement} id="your-changes-dialog" class="modal">
-	<form method="dialog" class="modal-box">
+	<form method="dialog" class="modal-box w-11/12 max-w-5xl">
 		<div class="flex justify-between">
 			<h3 class="font-bold text-lg">Your Changes</h3>
 
@@ -50,6 +56,34 @@
 				Discard all changes
 			</button>
 		</div>
+
+		{#if previouslySubmittedIssues && previouslySubmittedIssues.length > 0}
+			<div>
+				Previously Submitted Issues:
+				<div>
+					{#each previouslySubmittedIssues as issue}
+						<div class="flex space-x-4">
+							<div class="">
+								<a href={issue}>{issue}</a>
+							</div>
+							<div>
+								<button
+									on:click|preventDefault={() => {
+										previouslySubmittedIssues = previouslySubmittedIssues.filter(
+											(i) => i !== issue
+										);
+										localStorage.setItem('pr-issues', JSON.stringify(previouslySubmittedIssues));
+									}}
+									class="btn btn-xs btn-primary btn-outline"
+								>
+									Discard
+								</button>
+							</div>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
 		<div>
 			{#if $currentPRChanges}
 				{#if $currentPRChanges.newRows.length > 0}
@@ -87,7 +121,7 @@
 													(r) => r !== row
 												);
 
-												$currentPRChanges.lastChange = 'row';
+												$currentPRChanges.lastChange = 'row deleted';
 												if (
 													$currentPRChanges.changedRows.length === 0 &&
 													$currentPRChanges.newRows.length === 0 &&
@@ -132,7 +166,7 @@
 														$currentPRChanges.newColumns = $currentPRChanges?.newColumns.filter(
 															(c) => c !== column
 														);
-														$currentPRChanges.lastChange = 'column';
+														$currentPRChanges.lastChange = 'column deleted';
 													}
 												}
 											}
@@ -195,7 +229,7 @@
 												$currentPRChanges.changedRows = $currentPRChanges.changedRows.filter(
 													(r) => r !== changedRow
 												);
-												$currentPRChanges.lastChange = 'row';
+												$currentPRChanges.lastChange = 'row reverted';
 												if (
 													$currentPRChanges.changedRows.length === 0 &&
 													$currentPRChanges.newRows.length === 0 &&
@@ -303,7 +337,7 @@
 						});
 					});
 
-					let req = await fetch('http://localhost:8000/make_pull_request', {
+					let req = await fetch(GITHUB_BOT_URL, {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json'
@@ -317,6 +351,21 @@
 					});
 					let res = await req.json();
 					console.log(res);
+					if (res.status === 'success') {
+						notifySuccess(
+							'Success',
+							'Your changes have been submitted as an issue. You can track the progress of your changes on GitHub.'
+						);
+
+						let response = JSON.parse(res.response);
+						let issueUrl = response.html_url;
+						let previouslySubmittedIssuesFromStorage = localStorage.getItem('pr-issues');
+						previouslySubmittedIssues = previouslySubmittedIssuesFromStorage
+							? JSON.parse(previouslySubmittedIssuesFromStorage)
+							: [];
+						previouslySubmittedIssues.push(issueUrl);
+						localStorage.setItem('pr-issues', JSON.stringify(previouslySubmittedIssues));
+					}
 				}}
 			>
 				Submit

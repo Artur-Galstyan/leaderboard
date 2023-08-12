@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { page } from '$app/stores';
 	import { getRawGitHubContent } from '$lib/utils/githubUrlBuilder';
 	import Fuse from 'fuse.js';
@@ -41,7 +42,7 @@
 		const loadedData = await load();
 		prefaceData = loadedData.prefaceData;
 		content = loadedData.content;
-		const res = await fetch('entries.txt');
+		const res = await fetch(base + '/entries.txt');
 		let entries: string[] = [];
 		if (res.ok) {
 			const text = await res.text();
@@ -91,7 +92,7 @@
 </script>
 
 <div class="flex justify-center mt-12">
-	<img src="/leaderboard/logo-min.png" alt="The wisest koala" class="w-64 my-auto" />
+	<img src="{base}/logo-min.png" alt="The wisest koala" class="w-64 my-auto" />
 </div>
 <div class="text-center mt-4 mb-12 text-5xl">KGQA Leaderboard</div>
 
@@ -134,7 +135,7 @@
 	<div transition:fade|local class="flex justify-center space-x-4">
 		{#each prefaceData.knowledgeGraphs as kg}
 			{#if kg}
-				<a href={'/leaderboard/datasets/' + kg.toLowerCase()}>{kg}</a>
+				<a href={base + '/datasets/' + kg.toLowerCase()}>{kg}</a>
 			{/if}
 		{/each}
 	</div>

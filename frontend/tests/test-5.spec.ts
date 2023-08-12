@@ -78,7 +78,7 @@ test('add new column and then new row', async ({ page }) => {
 	await page.getByLabel('Row').getByText('TestColumnValue').click();
 	await page.getByRole('button', { name: 'OK' }).click();
 	await page.getByRole('button', { name: 'Expand' }).first().press('Escape');
-	await page.goto('/datasets/freebase/ComplexQuestions');
+	await page.goto('leaderboard/datasets/freebase/ComplexQuestions');
 	await page.getByPlaceholder('Filter 🔎').click();
 	await page.getByPlaceholder('Filter 🔎').fill('TestColumnValue');
 	await page.getByRole('gridcell', { name: 'TestModel123' }).click();

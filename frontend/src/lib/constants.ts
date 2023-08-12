@@ -10,8 +10,10 @@ export const NUMERIC_FIELDS = [
 	'Hits@5',
 	'MRR',
 	'EM',
-    'Lang_En',
-    'Lang_He',
-    'Lang_Kn',
-    'Lang_Zh',
+	'Lang_En',
+	'Lang_He',
+	'Lang_Kn',
+	'Lang_Zh'
 ];
+
+export const GITHUB_BOT_URL = 'https://api.leaderboard.agsolutions.dev/make_pull_request';

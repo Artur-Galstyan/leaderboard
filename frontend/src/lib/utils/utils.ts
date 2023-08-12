@@ -427,6 +427,8 @@ export function addNewColumnToTable(newColumn: any, page: any) {
 		if (newColumn.dataset != 'systems') return;
 	} else if (newColumn.dataset != page.params.db + '/' + page.params.dataset) return;
 
+	console.log("Found dataset, adding column to table's columns", newColumn);
+
 	let columnTitle = newColumn.column;
 	let columnType = newColumn.numerical;
 

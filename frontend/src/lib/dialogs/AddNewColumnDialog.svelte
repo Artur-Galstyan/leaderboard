@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { currentPRChanges, initPRChanges } from '$lib/currentPRChanges';
 	import { toggleDialog } from '$lib/dialogs/dialogUtils';
 	import { notifySuccess } from '$lib/notifications';
+	import { addNewColumnToTable } from '$lib/utils/utils';
 
 	export let dataset: string;
 
@@ -72,13 +74,14 @@
 					toggleDialog(`add-new-column-${dataset}`);
 					toggleDialog(`are-you-sure-${dataset}`);
 					if (!$currentPRChanges) $currentPRChanges = initPRChanges();
-					$currentPRChanges.newColumns.push({
+					let lastColumn = {
 						dataset: dataset,
 						column: newColumnName,
 						numerical: newColumnNumerical
-					});
-					$currentPRChanges.lastChange = 'column';
-
+					};
+					$currentPRChanges.newColumns.push(lastColumn);
+					$currentPRChanges.lastChange = 'column added';
+					addNewColumnToTable(lastColumn, $page);
 					notifySuccess(
 						'New column added successfully!',
 						`Added column ${newColumnName} to dataset ${dataset}`

@@ -38,7 +38,8 @@ const config = {
 			entries: await getEntriesFromTxtFile('./static/entries.txt')
 		},
 		paths: {
-			base: '/leaderboard'
+			base: '/leaderboard',
+			relative: false
 		}
 	}
 };

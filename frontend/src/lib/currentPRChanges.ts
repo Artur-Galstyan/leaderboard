@@ -27,7 +27,16 @@ export type NewPR = {
 	newRows: NewRow[];
 	changedRows: ChangedRow[];
 	newLeaderboards: Leaderboard[];
-	lastChange: 'column' | 'row' | 'cell' | 'leaderboard' | 'leaderboard deleted' | null;
+	lastChange:
+		| 'column added'
+		| 'column deleted'
+		| 'row added'
+		| 'row deleted'
+		| 'row reverted'
+		| 'cell'
+		| 'leaderboard added'
+		| 'leaderboard deleted'
+		| null;
 };
 
 export const currentPRChanges = writable<NewPR | null>(null);

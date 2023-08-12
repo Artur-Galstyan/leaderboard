@@ -47,7 +47,7 @@ test('add new row', async ({ page }) => {
 	await expect(page.getByRole('gridcell', { name: '2022' })).toBeVisible();
 	await expect(page.getByRole('gridcell', { name: 'Me' })).toBeVisible();
 	await expect(page.getByRole('gridcell', { name: '100' })).toBeVisible();
-	await page.goto('/datasets/freebase/ComplexQuestions');
+	await page.goto('leaderboard/datasets/freebase/ComplexQuestions');
 	await page.getByPlaceholder('Filter 🔎').click();
 	await page.getByPlaceholder('Filter 🔎').fill('TestModel123');
 	await expect(page.getByRole('gridcell', { name: 'TestModel123' })).toBeVisible();
