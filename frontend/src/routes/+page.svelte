@@ -143,7 +143,7 @@
 <div class="flex justify-center">
 	<button
 		on:click={() => {
-			window.location.href = 'systems';
+			window.location.href = base + '/systems';
 		}}
 		class="btn btn-accent"
 	>
