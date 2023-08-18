@@ -116,7 +116,7 @@
 		{#if searchResults}
 			{#each searchResults as result}
 				<div class="flex justify-center">
-					<a href={result.item.url}>
+					<a href={base + '/' + result.item.url}>
 						{#each result.item.dbName as letter}
 							{#if filterValue.toLowerCase().includes(letter.toLowerCase())}
 								<span class="text-info">{letter}</span>

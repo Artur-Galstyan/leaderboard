@@ -64,6 +64,13 @@
 		if (parsedTable) {
 			let columns = getBaseColumns();
 			columns = extendColumnsByParsedTable(parsedTable, columns);
+			// find system name column and put it in the front
+			let systemNameColumn = columns.find((col) => col.field === 'System Name');
+			if (systemNameColumn) {
+				columns = columns.filter((col) => col.field !== 'System Name');
+				columns.unshift(systemNameColumn);
+			}
+
 			try {
 				$currentTabulator = new Tabulator(table, {
 					data: parsedTable,

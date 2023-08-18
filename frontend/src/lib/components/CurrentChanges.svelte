@@ -317,55 +317,80 @@
 			<button
 				class="btn btn-primary"
 				on:click={async () => {
-					serializedPR = {};
-					serializedPR['newColumns'] = $currentPRChanges?.newColumns;
-					serializedPR['newLeaderboards'] = $currentPRChanges?.newLeaderboards;
-					serializedPR['newRows'] = [];
-					serializedPR['changedRows'] = [];
-					$currentPRChanges?.newRows?.forEach((row) => {
-						console.log(row.row);
-						serializedPR['newRows'].push({
-							dataset: row.dataset,
-							row: row.row
-						});
-					});
-					$currentPRChanges?.changedRows?.forEach((row) => {
-						console.log(row.row);
-						serializedPR['changedRows'].push({
-							dataset: row.dataset,
-							row: row.row
-						});
-					});
-
-					let req = await fetch(GITHUB_BOT_URL, {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
+					Swal.fire({
+						title: 'Give a title to your changes',
+						input: 'text',
+						inputAttributes: {
+							autocapitalize: 'off'
 						},
-						body: JSON.stringify({
-							newColumns: serializedPR['newColumns'],
-							newRows: serializedPR['newRows'],
-							changedRows: serializedPR['changedRows'],
-							newLeaderboards: serializedPR['newLeaderboards']
-						})
-					});
-					let res = await req.json();
-					console.log(res);
-					if (res.status === 'success') {
-						notifySuccess(
-							'Success',
-							'Your changes have been submitted as an issue. You can track the progress of your changes on GitHub.'
-						);
+						showCancelButton: true,
+						confirmButtonText: 'Submit',
+						showLoaderOnConfirm: true,
+						preConfirm: (title) => {
+							if (title === '') {
+								Swal.showValidationMessage('Title cannot be empty');
+							}
+						},
+						allowOutsideClick: () => !Swal.isLoading()
+					}).then(async (result) => {
+						if (result.isConfirmed) {
+							serializedPR = {};
+							serializedPR['newColumns'] = $currentPRChanges?.newColumns;
+							serializedPR['newLeaderboards'] = $currentPRChanges?.newLeaderboards;
+							serializedPR['newRows'] = [];
+							serializedPR['changedRows'] = [];
+							$currentPRChanges?.newRows?.forEach((row) => {
+								console.log(row.row);
+								serializedPR['newRows'].push({
+									dataset: row.dataset,
+									row: row.row
+								});
+							});
+							$currentPRChanges?.changedRows?.forEach((row) => {
+								console.log(row.row);
+								serializedPR['changedRows'].push({
+									dataset: row.dataset,
+									row: row.row
+								});
+							});
+							try {
+								let req = await fetch(GITHUB_BOT_URL, {
+									method: 'POST',
+									headers: {
+										'Content-Type': 'application/json'
+									},
+									body: JSON.stringify({
+										title: result.value,
+										newColumns: serializedPR['newColumns'],
+										newRows: serializedPR['newRows'],
+										changedRows: serializedPR['changedRows'],
+										newLeaderboards: serializedPR['newLeaderboards']
+									})
+								});
+								let res = await req.json();
+								console.log(res);
+								if (res.status === 'success') {
+									notifySuccess(
+										'Success',
+										'Your changes have been submitted as an issue. You can track the progress of your changes on GitHub.'
+									);
 
-						let response = JSON.parse(res.response);
-						let issueUrl = response.html_url;
-						let previouslySubmittedIssuesFromStorage = localStorage.getItem('pr-issues');
-						previouslySubmittedIssues = previouslySubmittedIssuesFromStorage
-							? JSON.parse(previouslySubmittedIssuesFromStorage)
-							: [];
-						previouslySubmittedIssues.push(issueUrl);
-						localStorage.setItem('pr-issues', JSON.stringify(previouslySubmittedIssues));
-					}
+									let response = JSON.parse(res.response);
+									let issueUrl = response.html_url;
+									let previouslySubmittedIssuesFromStorage = localStorage.getItem('pr-issues');
+									previouslySubmittedIssues = previouslySubmittedIssuesFromStorage
+										? JSON.parse(previouslySubmittedIssuesFromStorage)
+										: [];
+									previouslySubmittedIssues.push(issueUrl);
+									localStorage.setItem('pr-issues', JSON.stringify(previouslySubmittedIssues));
+								} else {
+									notifyError('Error', 'Something went wrong while submitting your changes.');
+								}
+							} catch (e) {
+								notifyError('Error', 'Something went wrong while submitting your changes.');
+							}
+						}
+					});
 				}}
 			>
 				Submit

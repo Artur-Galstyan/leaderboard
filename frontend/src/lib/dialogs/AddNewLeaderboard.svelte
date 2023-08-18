@@ -65,7 +65,7 @@
 							dataset: dataset,
 							data: leaderboardData
 						});
-						$currentPRChanges.lastChange = 'leaderboard';
+						$currentPRChanges.lastChange = 'leaderboard added';
 					} catch (e) {
 						notifyError(
 							'Error adding new leaderboard',
